@@ -53,6 +53,9 @@ with st.sidebar:
         "briefcase"
     ]
     
+    # Estado inicial do tema para passar para o menu
+    modo_escuro_inicial = st.session_state.get("toggle_tema", False)
+
     pagina = option_menu(
         menu_title=None,
         options=menu_opcoes,
@@ -61,13 +64,24 @@ with st.sidebar:
         default_index=1, # Default to Dashboard de Controle
         styles={
             "container": {"padding": "0!important", "background-color": "transparent", "border": "none"},
-            "icon": {"font-size": "17px"},
-            "nav-link": {"font-size": "14px", "text-align": "left", "margin": "2px 0", "border-radius": "8px"},
-            "nav-link-selected": {"background-color": "#187264", "font-weight": "bold"},
+            "icon": {"font-size": "17px", "color": "#2dd4bf" if modo_escuro_inicial else "#187264"},
+            "nav-link": {
+                "font-size": "14px", 
+                "text-align": "left", 
+                "margin": "4px 0", 
+                "border-radius": "8px", 
+                "background-color": "transparent !important",
+                "color": "#f1f5f9 !important" if modo_escuro_inicial else "#1e293b !important"
+            },
+            "nav-link-selected": {
+                "background-color": "#10b981 !important" if modo_escuro_inicial else "#187264 !important", 
+                "color": "#ffffff !important",
+                "font-weight": "bold"
+            },
         }
     )
 
-    st.markdown("<div style='margin-top: 40px;'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='margin-top: 35px;'></div>", unsafe_allow_html=True)
     st.markdown("---")
     
     # -------------------------------------------------------------
@@ -75,12 +89,160 @@ with st.sidebar:
     # -------------------------------------------------------------
     st.markdown("<div style='font-size: 11px; font-weight: bold; margin-bottom: 6px; letter-spacing: 1.2px; color: #888;'>TEMA DA INTERFACE</div>", unsafe_allow_html=True)
     
-    modo_escuro = st.toggle("Modo Escuro", value=st.session_state.get("toggle_tema", False), key="toggle_tema")
+    modo_escuro = st.toggle("Modo Escuro", value=modo_escuro_inicial, key="toggle_tema")
 
 # -------------------------------------------------------------
-# ESTILIZAÇÃO E ANIMAÇÃO DO SELECIONADOR + TEMA GLOBAL
+# PALETAS DE CORES ADAPTATIVAS (ALTO CONTRASTE)
 # -------------------------------------------------------------
 plotly_template = "plotly_dark" if modo_escuro else "plotly_white"
+
+# Cores vibrantes no escuro para máxima visibilidade; tons elegantes no claro
+cores_paleta = (
+    ['#2dd4bf', '#38bdf8', '#fbbf24', '#fb923c', '#f87171', '#c084fc']
+    if modo_escuro else
+    ['#0d9488', '#0284c7', '#d97706', '#ea580c', '#e11d48', '#7c3aed']
+)
+
+def aplicar_estilo_grafico(fig):
+    """Garante fundo 100% transparente, eixos visíveis e legendas legíveis em ambos os modos."""
+    cor_texto = "#f8fafc" if modo_escuro else "#1e293b"
+    cor_grid = "#334155" if modo_escuro else "#e2e8f0"
+    fig.update_layout(
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font=dict(color=cor_texto, family="sans-serif"),
+        xaxis=dict(
+            gridcolor=cor_grid,
+            tickfont=dict(color=cor_texto),
+            title_font=dict(color=cor_texto)
+        ),
+        yaxis=dict(
+            gridcolor=cor_grid,
+            tickfont=dict(color=cor_texto),
+            title_font=dict(color=cor_texto)
+        ),
+        legend=dict(
+            font=dict(color=cor_texto, size=13),
+            bgcolor="rgba(0,0,0,0)"
+        )
+    )
+
+# -------------------------------------------------------------
+# ESTILIZAÇÃO CSS GLOBAL (COMPATIBILIDADE CLARO / ESCURO)
+# -------------------------------------------------------------
+css_dark_extras = f"""
+    /* Fundo da Aplicação e Cabeçalho */
+    body, [data-testid="stAppViewContainer"], [data-testid="stHeader"] {{
+        background-color: #0b1120 !important;
+        color: #f1f5f9 !important;
+    }}
+    
+    /* Barra Lateral */
+    [data-testid="stSidebar"] {{
+        background-color: #060b14 !important;
+        border-right: 1px solid #1e293b !important;
+    }}
+    
+    /* Rótulos e Textos dos Filtros e Widgets */
+    div[data-testid="stWidgetLabel"] p,
+    div[data-testid="stWidgetLabel"] label,
+    label[data-testid="stWidgetLabel"],
+    label[data-testid="stWidgetLabel"] p,
+    [data-testid="stWidgetLabel"] span {{
+        color: #f8fafc !important;
+        font-weight: 600 !important;
+        font-size: 14px !important;
+    }}
+    
+    /* Títulos e Cabeçalhos */
+    h1, h2, h3, h4, h5, h6 {{
+        color: #ffffff !important;
+    }}
+
+    /* Caixas de Seleção (Selectbox e Multiselect) */
+    div[data-baseweb="select"] > div {{
+        background-color: #1e293b !important;
+        border: 1px solid #475569 !important;
+        color: #f8fafc !important;
+    }}
+    div[data-baseweb="select"] * {{
+        color: #f8fafc !important;
+    }}
+    div[data-baseweb="select"] svg {{
+        fill: #f8fafc !important;
+    }}
+
+    /* Tags selecionadas no Multiselect */
+    div[data-baseweb="tag"] {{
+        background-color: #0d3830 !important;
+        border: 1px solid #10b981 !important;
+    }}
+    div[data-baseweb="tag"] * {{
+        color: #ffffff !important;
+    }}
+
+    /* Dropdown aberto */
+    div[data-baseweb="popover"],
+    ul[data-baseweb="menu"] {{
+        background-color: #1e293b !important;
+        border: 1px solid #475569 !important;
+    }}
+    li[data-baseweb="menu-item"] {{
+        color: #f8fafc !important;
+        background-color: #1e293b !important;
+    }}
+    li[data-baseweb="menu-item"]:hover {{
+        background-color: #0f766e !important;
+    }}
+
+    /* Campos numéricos e de formulário */
+    div[data-baseweb="input"] > div {{
+        background-color: #1e293b !important;
+        border: 1px solid #475569 !important;
+        color: #f8fafc !important;
+    }}
+    input[data-baseweb="input"] {{
+        background-color: #1e293b !important;
+        color: #f8fafc !important;
+    }}
+
+    /* Cards de Métricas */
+    [data-testid="stMetricValue"] {{
+        color: #34d399 !important;
+    }}
+    [data-testid="stMetricLabel"] {{
+        color: #cbd5e1 !important;
+        font-weight: 600 !important;
+    }}
+    [data-testid="stMetricWidget"] {{
+        background-color: #111c30 !important;
+        border: 1px solid #1e293b !important;
+        border-radius: 10px !important;
+        padding: 12px !important;
+    }}
+
+    /* Links do menu lateral no modo escuro (evita fundo branco) */
+    [data-testid="stSidebar"] ul li a {{
+        background-color: transparent !important;
+        color: #f1f5f9 !important;
+    }}
+
+    /* Abas internas */
+    button[data-baseweb="tab"] {{
+        color: #94a3b8 !important;
+    }}
+    button[data-baseweb="tab"][aria-selected="true"] {{
+        color: #2dd4bf !important;
+        border-bottom-color: #2dd4bf !important;
+    }}
+""" if modo_escuro else """
+    /* Modo Claro: Textos bem definidos e limpos */
+    div[data-testid="stWidgetLabel"] p,
+    label[data-testid="stWidgetLabel"] p {{
+        color: #1e293b !important;
+        font-weight: 600 !important;
+    }}
+"""
 
 css_tema = f"""
     <style>
@@ -97,7 +259,6 @@ css_tema = f"""
             margin-bottom: 15px;
         }}
         
-        /* Esconde texto nativo do toggle para manter o foco no pill switch */
         .st-key-toggle_tema label p {{
             font-size: 13px !important;
             font-weight: 600 !important;
@@ -115,7 +276,7 @@ css_tema = f"""
             position: relative !important;
         }}
 
-        /* Estado Claro (Desmarcado): Verde vibrante com brilho suave */
+        /* Estado Claro (Desmarcado): Verde vibrante */
         .st-key-toggle_tema input:not(:checked) + div[data-baseweb="toggle"] {{
             background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
             border: 2px solid #059669 !important;
@@ -139,7 +300,7 @@ css_tema = f"""
             box-shadow: 0 3px 8px rgba(0,0,0,0.35) !important;
         }}
 
-        /* Knob no Modo Claro: Círculo Branco com ícone de Sol ☀️ animado */
+        /* Knob no Modo Claro: Círculo Branco com ícone de Sol ☀️ */
         .st-key-toggle_tema input:not(:checked) + div[data-baseweb="toggle"] > div {{
             background-color: #ffffff !important;
             transform: translateX(0px) !important;
@@ -157,34 +318,7 @@ css_tema = f"""
             background-position: center !important;
         }}
 
-        /* ----------------------------------------------------------- */
-        /* CORES DO TEMA GLOBAL (CLARO / ESCURO)                       */
-        /* ----------------------------------------------------------- */
-        {'"""' if not modo_escuro else f'''
-        body, [data-testid="stAppViewContainer"] {{
-            background-color: #0b1120 !important;
-            color: #f1f5f9 !important;
-        }}
-        [data-testid="stHeader"] {{
-            background-color: #0b1120 !important;
-        }}
-        [data-testid="stSidebar"] {{
-            background-color: #060b14 !important;
-            border-right: 1px solid #1e293b !important;
-        }}
-        [data-testid="stMetricValue"] {{
-            color: #34d399 !important;
-        }}
-        [data-testid="stMetricLabel"] {{
-            color: #94a3b8 !important;
-        }}
-        [data-testid="stMetricWidget"] {{
-            background-color: #111c30 !important;
-            border: 1px solid #1e293b !important;
-            border-radius: 10px !important;
-            padding: 12px !important;
-        }}
-        ''' + '"""'}
+        {css_dark_extras}
     </style>
 """
 st.markdown(css_tema, unsafe_allow_html=True)
@@ -372,7 +506,7 @@ elif pagina == "Dashboard de Controle":
             
             fig1 = px.bar(df_plot, x='Dia', y=categorias_selecionadas, barmode='group',
                           labels={'value': 'Toneladas', 'variable': 'Categoria'},
-                          color_discrete_sequence=['#187264', '#2a9d8f', '#e9c46a', '#f4a261', '#e76f51', '#264653'],
+                          color_discrete_sequence=cores_paleta,
                           template=plotly_template)
             
             for trace in fig1.data:
@@ -392,6 +526,7 @@ elif pagina == "Dashboard de Controle":
                 margin=dict(l=0, r=0, t=30, b=0),
                 legend=dict(title_text="", itemclick="toggleothers", itemdoubleclick="toggle")
             )
+            aplicar_estilo_grafico(fig1)
             
             if selected_category:
                 col_sel_info, col_sel_btn = st.columns([4, 1])
@@ -440,7 +575,7 @@ elif pagina == "Dashboard de Controle":
                 totals = df_daily_filtered.sum(axis=1).reset_index()
                 totals.columns = ['Categoria', 'Total (Toneladas)']
                 fig2 = px.pie(totals, names='Categoria', values='Total (Toneladas)', hole=0.4,
-                              color_discrete_sequence=['#187264', '#2a9d8f', '#e9c46a', '#f4a261', '#e76f51', '#264653'],
+                              color_discrete_sequence=cores_paleta,
                               template=plotly_template)
                 fig2.update_traces(
                     textposition='inside', 
@@ -448,6 +583,7 @@ elif pagina == "Dashboard de Controle":
                     hovertemplate="<b>%{label}</b><br>Pesagem: %{value:.2f} t<extra></extra>"
                 )
                 fig2.update_layout(margin=dict(l=0, r=0, t=30, b=0))
+                aplicar_estilo_grafico(fig2)
                 st.plotly_chart(fig2, use_container_width=True)
                 
             with col_tabela:
@@ -473,15 +609,11 @@ elif pagina == "Gestão de Efluentes":
         
     st.markdown("---")
     
-    # Subtópicos em Abas Dedicadas
     sub_tab1, sub_tab2 = st.tabs([
         "🌊 Balanço Hídrico das Lagoas", 
         "⛈️ Previsão Meteorológica e Risco de Transbordamento"
     ])
     
-    # -------------------------------------------------------------
-    # SUBTÓPICO 1: Balanço Hídrico das Lagoas
-    # -------------------------------------------------------------
     with sub_tab1:
         st.markdown("### Monitoramento Operacional das Lagoas de Lixiviado")
         st.caption("Acompanhamento volumétrico, vazão de recirculação e capacidade disponível do sistema de lagoas de chorume.")
@@ -498,7 +630,6 @@ elif pagina == "Gestão de Efluentes":
             
         st.markdown("<br>", unsafe_allow_html=True)
         
-        # Gráfico de Nível das Lagoas
         dias_sim = [f"Dia {i}" for i in range(1, 16)]
         vol_lagoa1 = [4200, 4250, 4310, 4290, 4380, 4420, 4400, 4450, 4510, 4490, 4520, 4560, 4540, 4520, 4536]
         cota_seguranca = [5800] * 15
@@ -537,11 +668,11 @@ elif pagina == "Gestão de Efluentes":
             hovermode="x unified",
             margin=dict(l=0, r=0, t=40, b=0)
         )
+        aplicar_estilo_grafico(fig_hidrico)
         st.plotly_chart(fig_hidrico, use_container_width=True)
         
         st.markdown("<br>", unsafe_allow_html=True)
         
-        # Tabela de Monitoramento Físico-Químico
         st.subheader("📋 Registro Físico-Químico e Vazões Recentes")
         df_quali = pd.DataFrame({
             "Data": ["08/10/2026", "07/10/2026", "06/10/2026", "05/10/2026", "04/10/2026"],
@@ -554,9 +685,6 @@ elif pagina == "Gestão de Efluentes":
         })
         st.dataframe(df_quali, use_container_width=True)
 
-    # -------------------------------------------------------------
-    # SUBTÓPICO 2: Previsão Meteorológica e Risco de Transbordamento
-    # -------------------------------------------------------------
     with sub_tab2:
         st.markdown("### Diagnóstico Meteorológico & Análise Preventiva de Borda Livre")
         st.caption("Cruzamento de dados pluviométricos previstos para a microrregião de Catalão com a capacidade de retenção hidráulica.")
@@ -586,17 +714,16 @@ elif pagina == "Gestão de Efluentes":
             fig_chuva.update_traces(
                 hovertemplate="<b>%{x}</b><br>Precipitação: %{y:.1f} mm<extra></extra>"
             )
+            aplicar_estilo_grafico(fig_chuva)
             st.plotly_chart(fig_chuva, use_container_width=True)
             
         st.markdown("---")
         
-        # Simulador Interativo de Risco
         st.subheader("⚡ Simulador de Estresse Hídrico / Chuva Intensa")
         st.markdown("Selecione um volume hipotético de chuva para simular a resposta imediata da lagoa:")
         
         chuva_simulada = st.slider("Simular tempestade súbita em 24h (mm de chuva):", min_value=0, max_value=120, value=45, step=5)
         
-        # Cálculo de impacto: Área de captação estimada em 25.000 m² x escoamento de 0.65
         area_captacao = 25000 # m²
         runoff = 0.65
         aporte_estimado_m3 = (area_captacao * (chuva_simulada / 1000.0)) * runoff
@@ -649,7 +776,8 @@ elif pagina == "Painel de Engenharia":
             labels={"x": "Mês", "y": "Recalque Médio (cm)"},
             template=plotly_template
         )
-        fig_rec.update_traces(line_color="#187264")
+        fig_rec.update_traces(line_color="#2dd4bf" if modo_escuro else "#187264")
+        aplicar_estilo_grafico(fig_rec)
         st.plotly_chart(fig_rec, use_container_width=True)
         
     with col_g2:
@@ -658,10 +786,11 @@ elif pagina == "Painel de Engenharia":
             values=[380680, 239320],
             names=["Volume Ocupado (m³)", "Volume Disponível (m³)"],
             hole=0.45,
-            color_discrete_sequence=['#187264', '#2a9d8f'],
+            color_discrete_sequence=['#2dd4bf', '#38bdf8'] if modo_escuro else ['#187264', '#2a9d8f'],
             template=plotly_template
         )
         fig_vol.update_traces(textposition='inside', textinfo='percent+label')
+        aplicar_estilo_grafico(fig_vol)
         st.plotly_chart(fig_vol, use_container_width=True)
 
 # =============================================================
@@ -698,8 +827,9 @@ elif pagina == "Painel Executivo":
             x=meses_disp, y=ton_disp,
             labels={"x": "Mês", "y": "Toneladas Dispostas"},
             template=plotly_template,
-            color_discrete_sequence=['#187264']
+            color_discrete_sequence=['#2dd4bf' if modo_escuro else '#187264']
         )
+        aplicar_estilo_grafico(fig_exec1)
         st.plotly_chart(fig_exec1, use_container_width=True)
         
     with col_e2:
@@ -709,7 +839,8 @@ elif pagina == "Painel Executivo":
         fig_exec2 = px.pie(
             names=custos, values=valores, hole=0.4,
             template=plotly_template,
-            color_discrete_sequence=['#187264', '#2a9d8f', '#e9c46a', '#f4a261', '#e76f51']
+            color_discrete_sequence=cores_paleta
         )
         fig_exec2.update_traces(textposition='inside', textinfo='percent+label')
+        aplicar_estilo_grafico(fig_exec2)
         st.plotly_chart(fig_exec2, use_container_width=True)

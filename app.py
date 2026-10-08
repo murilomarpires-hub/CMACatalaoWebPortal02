@@ -13,6 +13,12 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# Inicializa o estado do tema (padrão escuro ativado)
+if "toggle_tema" not in st.session_state:
+    st.session_state["toggle_tema"] = True
+
+modo_escuro = st.session_state.get("toggle_tema", True)
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 FILE_PATH = os.path.join(BASE_DIR, "BALANÇA_ATERRO.xlsx")
 LOGO_PATH = os.path.join(BASE_DIR, "Logo", "image (2).png")
@@ -53,8 +59,11 @@ with st.sidebar:
         "briefcase"
     ]
     
-    # Estado inicial do tema para passar para o menu
-    modo_escuro_inicial = st.session_state.get("toggle_tema", False)
+    nav_bg = "rgba(255, 255, 255, 0.05)" if modo_escuro else "#f8fafc"
+    nav_color = "#f8fafc" if modo_escuro else "#1e293b"
+    nav_hover = "#1e293b" if modo_escuro else "#e2e8f0"
+    sel_bg = "#10b981" if modo_escuro else "#187264"
+    icon_color = "#2dd4bf" if modo_escuro else "#187264"
 
     pagina = option_menu(
         menu_title=None,
@@ -63,19 +72,20 @@ with st.sidebar:
         menu_icon="cast",
         default_index=1, # Default to Dashboard de Controle
         styles={
-            "container": {"padding": "0!important", "background-color": "transparent", "border": "none"},
-            "icon": {"font-size": "17px", "color": "#2dd4bf" if modo_escuro_inicial else "#187264"},
+            "container": {"padding": "0!important", "background-color": "transparent"},
+            "icon": {"font-size": "17px", "color": icon_color},
             "nav-link": {
                 "font-size": "14px", 
                 "text-align": "left", 
                 "margin": "4px 0", 
                 "border-radius": "8px", 
-                "background-color": "transparent !important",
-                "color": "#f1f5f9 !important" if modo_escuro_inicial else "#1e293b !important"
+                "background-color": nav_bg,
+                "color": nav_color,
+                "--hover-color": nav_hover
             },
             "nav-link-selected": {
-                "background-color": "#10b981 !important" if modo_escuro_inicial else "#187264 !important", 
-                "color": "#ffffff !important",
+                "background-color": sel_bg, 
+                "color": "#ffffff",
                 "font-weight": "bold"
             },
         }
@@ -89,14 +99,13 @@ with st.sidebar:
     # -------------------------------------------------------------
     st.markdown("<div style='font-size: 11px; font-weight: bold; margin-bottom: 6px; letter-spacing: 1.2px; color: #888;'>TEMA DA INTERFACE</div>", unsafe_allow_html=True)
     
-    modo_escuro = st.toggle("Modo Escuro", value=modo_escuro_inicial, key="toggle_tema")
+    modo_escuro_toggle = st.toggle("Modo Escuro", value=modo_escuro, key="toggle_tema")
 
 # -------------------------------------------------------------
 # PALETAS DE CORES ADAPTATIVAS (ALTO CONTRASTE)
 # -------------------------------------------------------------
 plotly_template = "plotly_dark" if modo_escuro else "plotly_white"
 
-# Cores vibrantes no escuro para máxima visibilidade; tons elegantes no claro
 cores_paleta = (
     ['#2dd4bf', '#38bdf8', '#fbbf24', '#fb923c', '#f87171', '#c084fc']
     if modo_escuro else
@@ -130,119 +139,129 @@ def aplicar_estilo_grafico(fig):
 # -------------------------------------------------------------
 # ESTILIZAÇÃO CSS GLOBAL (COMPATIBILIDADE CLARO / ESCURO)
 # -------------------------------------------------------------
-css_dark_extras = f"""
-    /* Fundo da Aplicação e Cabeçalho */
-    body, [data-testid="stAppViewContainer"], [data-testid="stHeader"] {{
-        background-color: #0b1120 !important;
-        color: #f1f5f9 !important;
-    }}
-    
-    /* Barra Lateral */
-    [data-testid="stSidebar"] {{
-        background-color: #060b14 !important;
-        border-right: 1px solid #1e293b !important;
-    }}
-    
-    /* Rótulos e Textos dos Filtros e Widgets */
-    div[data-testid="stWidgetLabel"] p,
-    div[data-testid="stWidgetLabel"] label,
-    label[data-testid="stWidgetLabel"],
-    label[data-testid="stWidgetLabel"] p,
-    [data-testid="stWidgetLabel"] span {{
-        color: #f8fafc !important;
-        font-weight: 600 !important;
-        font-size: 14px !important;
-    }}
-    
-    /* Títulos e Cabeçalhos */
-    h1, h2, h3, h4, h5, h6 {{
-        color: #ffffff !important;
-    }}
+if modo_escuro:
+    css_modo_especifico = """
+        body, [data-testid="stAppViewContainer"], [data-testid="stHeader"] {
+            background-color: #0b1120 !important;
+            color: #f1f5f9 !important;
+        }
+        
+        [data-testid="stSidebar"] {
+            background-color: #060b14 !important;
+            border-right: 1px solid #1e293b !important;
+        }
+        
+        /* Rótulos e Textos dos Filtros e Widgets */
+        div[data-testid="stWidgetLabel"] p,
+        div[data-testid="stWidgetLabel"] label,
+        label[data-testid="stWidgetLabel"],
+        label[data-testid="stWidgetLabel"] p,
+        [data-testid="stWidgetLabel"] span {
+            color: #f8fafc !important;
+            font-weight: 600 !important;
+            font-size: 14px !important;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            color: #ffffff !important;
+        }
 
-    /* Caixas de Seleção (Selectbox e Multiselect) */
-    div[data-baseweb="select"] > div {{
-        background-color: #1e293b !important;
-        border: 1px solid #475569 !important;
-        color: #f8fafc !important;
-    }}
-    div[data-baseweb="select"] * {{
-        color: #f8fafc !important;
-    }}
-    div[data-baseweb="select"] svg {{
-        fill: #f8fafc !important;
-    }}
+        /* Força fundo escuro em TODOS os inputs, selectbox e multiselect */
+        [data-testid="stSelectbox"] div[data-baseweb="select"],
+        [data-testid="stSelectbox"] div[data-baseweb="select"] > div,
+        [data-testid="stSelectbox"] div[data-baseweb="select"] div,
+        [data-testid="stMultiSelect"] div[data-baseweb="select"],
+        [data-testid="stMultiSelect"] div[data-baseweb="select"] > div,
+        [data-testid="stMultiSelect"] div[data-baseweb="select"] div,
+        div[data-baseweb="select"],
+        div[data-baseweb="select"] > div,
+        div[data-baseweb="base-input"],
+        div[data-baseweb="base-input"] > div,
+        div[data-baseweb="input"],
+        div[data-baseweb="input"] > div,
+        input[data-baseweb="input"] {
+            background-color: #111c30 !important;
+            color: #f8fafc !important;
+            border-color: #334155 !important;
+        }
+        
+        div[data-baseweb="select"] span {
+            color: #f8fafc !important;
+        }
+        div[data-baseweb="select"] svg {
+            fill: #f8fafc !important;
+        }
 
-    /* Tags selecionadas no Multiselect */
-    div[data-baseweb="tag"] {{
-        background-color: #0d3830 !important;
-        border: 1px solid #10b981 !important;
-    }}
-    div[data-baseweb="tag"] * {{
-        color: #ffffff !important;
-    }}
+        /* Tags selecionadas no Multiselect */
+        div[data-baseweb="tag"] {
+            background-color: #0d3830 !important;
+            border: 1px solid #10b981 !important;
+        }
+        div[data-baseweb="tag"] * {
+            color: #ffffff !important;
+        }
 
-    /* Dropdown aberto */
-    div[data-baseweb="popover"],
-    ul[data-baseweb="menu"] {{
-        background-color: #1e293b !important;
-        border: 1px solid #475569 !important;
-    }}
-    li[data-baseweb="menu-item"] {{
-        color: #f8fafc !important;
-        background-color: #1e293b !important;
-    }}
-    li[data-baseweb="menu-item"]:hover {{
-        background-color: #0f766e !important;
-    }}
+        /* Dropdown aberto */
+        div[data-baseweb="popover"],
+        ul[data-baseweb="menu"],
+        div[data-baseweb="popover"] > div {
+            background-color: #111c30 !important;
+            border: 1px solid #334155 !important;
+        }
+        li[data-baseweb="menu-item"] {
+            color: #f8fafc !important;
+            background-color: #111c30 !important;
+        }
+        li[data-baseweb="menu-item"]:hover {
+            background-color: #0f766e !important;
+        }
 
-    /* Campos numéricos e de formulário */
-    div[data-baseweb="input"] > div {{
-        background-color: #1e293b !important;
-        border: 1px solid #475569 !important;
-        color: #f8fafc !important;
-    }}
-    input[data-baseweb="input"] {{
-        background-color: #1e293b !important;
-        color: #f8fafc !important;
-    }}
+        /* Cards de Métricas */
+        [data-testid="stMetricValue"] {
+            color: #34d399 !important;
+        }
+        [data-testid="stMetricLabel"] {
+            color: #cbd5e1 !important;
+            font-weight: 600 !important;
+        }
+        [data-testid="stMetricWidget"] {
+            background-color: #111c30 !important;
+            border: 1px solid #1e293b !important;
+            border-radius: 10px !important;
+            padding: 12px !important;
+        }
 
-    /* Cards de Métricas */
-    [data-testid="stMetricValue"] {{
-        color: #34d399 !important;
-    }}
-    [data-testid="stMetricLabel"] {{
-        color: #cbd5e1 !important;
-        font-weight: 600 !important;
-    }}
-    [data-testid="stMetricWidget"] {{
-        background-color: #111c30 !important;
-        border: 1px solid #1e293b !important;
-        border-radius: 10px !important;
-        padding: 12px !important;
-    }}
-
-    /* Links do menu lateral no modo escuro (evita fundo branco) */
-    [data-testid="stSidebar"] ul li a {{
-        background-color: transparent !important;
-        color: #f1f5f9 !important;
-    }}
-
-    /* Abas internas */
-    button[data-baseweb="tab"] {{
-        color: #94a3b8 !important;
-    }}
-    button[data-baseweb="tab"][aria-selected="true"] {{
-        color: #2dd4bf !important;
-        border-bottom-color: #2dd4bf !important;
-    }}
-""" if modo_escuro else """
-    /* Modo Claro: Textos bem definidos e limpos */
-    div[data-testid="stWidgetLabel"] p,
-    label[data-testid="stWidgetLabel"] p {{
-        color: #1e293b !important;
-        font-weight: 600 !important;
-    }}
-"""
+        /* Abas internas */
+        button[data-baseweb="tab"] {
+            color: #94a3b8 !important;
+        }
+        button[data-baseweb="tab"][aria-selected="true"] {
+            color: #2dd4bf !important;
+            border-bottom-color: #2dd4bf !important;
+        }
+    """
+else:
+    css_modo_especifico = """
+        body, [data-testid="stAppViewContainer"], [data-testid="stHeader"] {
+            background-color: #ffffff !important;
+            color: #1e293b !important;
+        }
+        [data-testid="stSidebar"] {
+            background-color: #f8fafc !important;
+            border-right: 1px solid #e2e8f0 !important;
+        }
+        div[data-testid="stWidgetLabel"] p,
+        label[data-testid="stWidgetLabel"] p {
+            color: #1e293b !important;
+            font-weight: 600 !important;
+        }
+        [data-testid="stMetricWidget"] {
+            background-color: #f8fafc !important;
+            border: 1px solid #e2e8f0 !important;
+            border-radius: 10px !important;
+            padding: 12px !important;
+        }
+    """
 
 css_tema = f"""
     <style>
@@ -318,7 +337,7 @@ css_tema = f"""
             background-position: center !important;
         }}
 
-        {css_dark_extras}
+        {css_modo_especifico}
     </style>
 """
 st.markdown(css_tema, unsafe_allow_html=True)

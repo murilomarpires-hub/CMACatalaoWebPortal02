@@ -1,0 +1,30 @@
+# Virtual Environment
+venv/
+ENV/
+env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# OS generated files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Large files & Desktop Administrative folders (not part of the web portal)
+*.mp4
+*.avi
+*.mov
+*.pdf
+Reuniões/
+Contrato/
+"MAPAS DA COLETA/"
+MAPAS DA COLETA/
+"Relatório de Investidores/"
+Relatório de Investidores/
+"Sinalização do Aterro/"
+Sinalização do Aterro/
+"Implentação aterro sanitário/"
+Implentação aterro sanitário/

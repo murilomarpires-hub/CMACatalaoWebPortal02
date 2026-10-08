@@ -877,43 +877,182 @@ elif pagina == "Painel Executivo":
         st.markdown(f"<div style='text-align: right; padding-top: 20px; color: {'#94a3b8' if modo_escuro else '#64748b'};'>👤 Admin</div>", unsafe_allow_html=True)
         
     st.markdown("---")
-    st.markdown("Visão executiva estratégica com indicadores consolidados para tomada de decisão da diretoria e gerência geral.")
+    st.markdown("Visão executiva e estratégica para tomada de decisão da diretoria, planejamento de capacidade e conformidade legal.")
     
-    col_ex1, col_ex2, col_ex3, col_ex4 = st.columns(4)
-    with col_ex1:
-        st.metric("Custo Médio Operacional", "R$ 49,20 / t", "-3.5% vs orçado")
-    with col_ex2:
-        st.metric("Disposição Total (2026)", "42.850 t", "Dentro do cronograma")
-    with col_ex3:
-        st.metric("Eficiência de Coleta", "98.8 %", "+0.4% no mês")
-    with col_ex4:
-        st.metric("Conformidade Ambiental", "100 %", "Licença Vigente")
-        
-    st.markdown("<br>", unsafe_allow_html=True)
+    sub_exec1, sub_exec2 = st.tabs([
+        "⏳ Vida Útil", 
+        "📅 Calendário Ambiental"
+    ])
     
-    col_e1, col_e2 = st.columns(2)
-    with col_e1:
-        st.subheader("Desempenho Mensal de Resíduos Dispostos (t)")
-        meses_disp = ["Maio", "Junho", "Julho", "Agosto", "Setembro"]
-        ton_disp = [7120, 7450, 7890, 8120, 8350]
-        fig_exec1 = px.bar(
-            x=meses_disp, y=ton_disp,
-            labels={"x": "Mês", "y": "Toneladas Dispostas"},
-            template=plotly_template,
-            color_discrete_sequence=['#2dd4bf' if modo_escuro else '#187264']
-        )
-        aplicar_estilo_grafico(fig_exec1)
-        st.plotly_chart(fig_exec1, use_container_width=True)
+    # -------------------------------------------------------------
+    # SUBTÓPICO 1: Vida Útil
+    # -------------------------------------------------------------
+    with sub_exec1:
+        st.markdown("### Projeção Volumétrica & Capacidade Remanescente do Aterro")
+        st.caption("Planejamento plurianual da vida útil da célula ativa e cronograma estratégico para abertura das próximas fases.")
         
-    with col_e2:
-        st.subheader("Distribuição dos Custos Operacionais")
-        custos = ["Operação de Máquinas", "Mão de Obra", "Tratamento de Lixiviado", "Monitoramento Ambiental", "Manutenção"]
-        valores = [38, 26, 16, 11, 9]
-        fig_exec2 = px.pie(
-            names=custos, values=valores, hole=0.4,
-            template=plotly_template,
-            color_discrete_sequence=cores_paleta
-        )
-        fig_exec2.update_traces(textposition='inside', textinfo='percent+label')
-        aplicar_estilo_grafico(fig_exec2)
-        st.plotly_chart(fig_exec2, use_container_width=True)
+        col_vu1, col_vu2, col_vu3, col_vu4 = st.columns(4)
+        with col_vu1:
+            st.metric("Vida Útil Estimada", "8.4 anos", "Horizonte: 2034")
+        with col_vu2:
+            st.metric("Capacidade Total Licenciada", "1.200.000 m³", "Células 01, 02 e 03")
+        with col_vu3:
+            st.metric("Volume Ocupado Acumulado", "468.200 m³", "39.0% do total")
+        with col_vu4:
+            st.metric("Volume Disponível", "731.800 m³", "61.0% livre")
+            
+        st.markdown("<br>", unsafe_allow_html=True)
+        
+        col_vu_g1, col_vu_g2 = st.columns([2, 1])
+        with col_vu_g1:
+            st.subheader("Curva de Preenchimento Volumétrico & Projeção Futura")
+            anos_proj = [2022, 2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030, 2031, 2032, 2033, 2034]
+            vol_historico_proj = [120000, 210000, 305000, 395000, 468200, 555000, 645000, 740000, 840000, 945000, 1055000, 1170000, 1200000]
+            cap_max_proj = [1200000] * len(anos_proj)
+            
+            fig_vida = go.Figure()
+            fig_vida.add_trace(go.Scatter(
+                x=anos_proj[:5], y=vol_historico_proj[:5],
+                name="Volume Realizado (Histórico)",
+                mode="lines+markers",
+                line=dict(color="#10b981", width=3),
+                fill='tozeroy', fillcolor='rgba(16, 185, 129, 0.15)'
+            ))
+            fig_vida.add_trace(go.Scatter(
+                x=anos_proj[4:], y=vol_historico_proj[4:],
+                name="Volume Projetado (Estimativa)",
+                mode="lines+markers",
+                line=dict(color="#38bdf8", width=3, dash="dash")
+            ))
+            fig_vida.add_trace(go.Scatter(
+                x=anos_proj, y=cap_max_proj,
+                name="Capacidade Máxima do Maciço",
+                mode="lines",
+                line=dict(color="#ef4444", width=2, dash="dot")
+            ))
+            fig_vida.update_layout(
+                xaxis_title="Ano",
+                yaxis_title="Volume Acumulado (m³)",
+                template=plotly_template,
+                hovermode="x unified",
+                margin=dict(l=0, r=0, t=30, b=0)
+            )
+            aplicar_estilo_grafico(fig_vida)
+            st.plotly_chart(fig_vida, use_container_width=True)
+            
+        with col_vu_g2:
+            st.subheader("Distribuição por Fases")
+            fig_fases = px.pie(
+                values=[280000, 188200, 731800],
+                names=["Célula 01 (Encerrada)", "Célula 02 (Ativa)", "Célula 03 (Futura)"],
+                hole=0.45,
+                color_discrete_sequence=['#64748b', '#187264', '#2dd4bf'] if modo_escuro else ['#94a3b8', '#187264', '#2a9d8f'],
+                template=plotly_template
+            )
+            fig_fases.update_traces(textposition='inside', textinfo='percent+label')
+            aplicar_estilo_grafico(fig_fases)
+            st.plotly_chart(fig_fases, use_container_width=True)
+            
+        st.markdown("---")
+        st.subheader("📋 Status Estratégico das Células Operacionais")
+        df_celulas = pd.DataFrame({
+            "Unidade / Célula": ["Célula 01", "Célula 02 (Operação Atual)", "Célula 03 (Planejamento)"],
+            "Capacidade Projetada (m³)": ["300.000 m³", "420.000 m³", "480.000 m³"],
+            "Volume Ocupado (m³)": ["280.000 m³", "188.200 m³", "0 m³"],
+            "Taxa de Ocupação": ["93.3% (Saturada)", "44.8% (Em uso)", "0.0% (Virgem)"],
+            "Tempo de Operação Estimado": ["Encerrada em 2023", "Até Março/2029 (~2.5 anos)", "Previsão 2029 a 2034 (~5.9 anos)"],
+            "Situação Regulatória": ["🟢 Pós-fechamento monitorado", "🟢 Licença de Operação Ativa", "🟡 Projeto Executivo em Licenciamento"]
+        })
+        st.dataframe(df_celulas, use_container_width=True)
+
+    # -------------------------------------------------------------
+    # SUBTÓPICO 2: Calendário Ambiental
+    # -------------------------------------------------------------
+    with sub_exec2:
+        st.markdown("### Gestão de Condicionantes, Prazos Legais & Licenciamento Ambiental")
+        st.caption("Acompanhamento executivo de obrigações perante os órgãos reguladores (SEMAD / IBAMA / Prefeitura) e auditorias periódicas.")
+        
+        col_ca1, col_ca2, col_ca3, col_ca4 = st.columns(4)
+        with col_ca1:
+            st.metric("Licença de Operação (L.O.)", "Vigente", "Validade: Nov/2028")
+        with col_ca2:
+            st.metric("Condicionantes em Dia", "100 %", "18 de 18 cumpridas")
+        with col_ca3:
+            st.metric("Próxima Entrega Legal", "7 dias", "15/10/2026")
+        with col_ca4:
+            st.metric("Auditoria Externa", "45 dias", "Previsão Nov/2026")
+            
+        st.markdown("<br>", unsafe_allow_html=True)
+        
+        st.subheader("📅 Cronograma Anual de Condicionantes e Obrigações Ambientais (2026 / 2027)")
+        
+        col_filtro_ca1, col_filtro_ca2 = st.columns([1, 2])
+        with col_filtro_ca1:
+            filtro_status = st.selectbox("Filtrar por Status:", ["Todos", "🟡 Prazo Próximo", "🔵 Programado", "🟢 Concluído"])
+            
+        df_calendario = pd.DataFrame([
+            {
+                "Prazo Limite": "15/10/2026",
+                "Obrigação / Condicionante": "Coleta e Análise Laboratorial de Águas Subterrâneas (Poços Piezométricos)",
+                "Órgão / Destino": "SEMAD / GO",
+                "Frequência": "Trimestral",
+                "Responsável": "Laboratório Ambiental / Eng. Química",
+                "Status": "🟡 Prazo Próximo"
+            },
+            {
+                "Prazo Limite": "30/10/2026",
+                "Obrigação / Condicionante": "Relatório Mensal de Balanço Hídrico e Recirculação de Lixiviado",
+                "Órgão / Destino": "SEMAD / GO",
+                "Frequência": "Mensal",
+                "Responsável": "Engenharia de Operações",
+                "Status": "🔵 Programado"
+            },
+            {
+                "Prazo Limite": "15/11/2026",
+                "Obrigação / Condicionante": "Monitoramento Semestral de Emissões de Biogás e Eficiência do Queimador (Flare)",
+                "Órgão / Destino": "SEMAD / GO",
+                "Frequência": "Semestral",
+                "Responsável": "Consultoria de Emissões Atmosféricas",
+                "Status": "🔵 Programado"
+            },
+            {
+                "Prazo Limite": "10/12/2026",
+                "Obrigação / Condicionante": "Laudo Semestral de Estabilidade Geotécnica de Taludes e Acompanhamento de Recalque",
+                "Órgão / Destino": "SEMAD / Defesa Civil",
+                "Frequência": "Semestral",
+                "Responsável": "Engenharia Geotécnica",
+                "Status": "🔵 Programado"
+            },
+            {
+                "Prazo Limite": "31/01/2027",
+                "Obrigação / Condicionante": "Inventário Anual de Resíduos Sólidos Dispostos e Triados",
+                "Órgão / Destino": "Prefeitura de Catalão",
+                "Frequência": "Anual",
+                "Responsável": "Gerência de Operações",
+                "Status": "🔵 Programado"
+            },
+            {
+                "Prazo Limite": "31/03/2027",
+                "Obrigação / Condicionante": "Relatório Anual de Atividades Potencialmente Poluidoras (RAPP)",
+                "Órgão / Destino": "IBAMA",
+                "Frequência": "Anual",
+                "Responsável": "Departamento Jurídico-Ambiental",
+                "Status": "🔵 Programado"
+            },
+            {
+                "Prazo Limite": "30/09/2026",
+                "Obrigação / Condicionante": "Renovação e Calibração Periódica das Células de Carga da Balança Rodoviária",
+                "Órgão / Destino": "IPEM / INMETRO",
+                "Frequência": "Anual",
+                "Responsável": "Manutenção Metrológica",
+                "Status": "🟢 Concluído"
+            }
+        ])
+        
+        if filtro_status != "Todos":
+            df_calendario = df_calendario[df_calendario["Status"] == filtro_status]
+            
+        st.dataframe(df_calendario, use_container_width=True)
+        
+        st.markdown("<br>", unsafe_allow_html=True)
+        st.info("💡 **Aviso Executivo:** As condicionantes ambientais possuem protocolo com 15 dias de antecedência mínima para validação do responsável técnico perante a SEMAD.")

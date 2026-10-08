@@ -42,12 +42,14 @@ with st.sidebar:
     
     st.markdown(f"<div style='font-size: 11px; font-weight: bold; margin-bottom: 8px; letter-spacing: 1.5px; color: {'#94a3b8' if modo_escuro else '#64748b'};'>GERENCIAMENTO</div>", unsafe_allow_html=True)
     
-    # Menus in strict Alphabetical Order
+    # Menus em Ordem Alfabética estrita com subtópicos aninhados em Painel de Engenharia
     menu_opcoes = [
         "Cálculo de Reciclagem",
         "Dashboard de Controle",
         "Gestão de Efluentes",
-        "Painel de Engenharia",
+        "Painel de Engenharia ▴",
+        "\u00A0\u00A0↳ Vida Útil",
+        "\u00A0\u00A0↳ Calendário Ambiental",
         "Painel Executivo"
     ]
     
@@ -56,6 +58,8 @@ with st.sidebar:
         "speedometer2",
         "droplet-half",
         "gear-wide-connected",
+        "hourglass-split",
+        "calendar-event",
         "briefcase"
     ]
     
@@ -90,6 +94,9 @@ with st.sidebar:
             },
         }
     )
+    
+    # Normalização da rota selecionada para roteamento interno
+    pagina_limpa = pagina.replace('\u00A0', '').replace('↳', '').strip()
 
     st.markdown("<div style='margin-top: 35px;'></div>", unsafe_allow_html=True)
     st.markdown("---")
@@ -410,7 +417,7 @@ def load_sheet_data(file_path, sheet_name, modified_time):
 # =============================================================
 # 1. CÁLCULO DE RECICLAGEM
 # =============================================================
-if pagina == "Cálculo de Reciclagem":
+if pagina_limpa == "Cálculo de Reciclagem":
     col_header_txt, col_header_admin = st.columns([4, 1])
     with col_header_txt:
         st.markdown("<h2 style='padding-top: 10px;'>♻️ Cálculo de Reciclagem</h2>", unsafe_allow_html=True)
@@ -473,7 +480,7 @@ if pagina == "Cálculo de Reciclagem":
 # =============================================================
 # 2. DASHBOARD DE CONTROLE
 # =============================================================
-elif pagina == "Dashboard de Controle":
+elif pagina_limpa == "Dashboard de Controle":
     col_header_txt, col_header_admin = st.columns([4, 1])
     with col_header_txt:
         st.markdown("<h2 style='padding-top: 10px;'>📊 Dashboard de Controle</h2>", unsafe_allow_html=True)
@@ -673,7 +680,7 @@ elif pagina == "Dashboard de Controle":
 # =============================================================
 # 3. GESTÃO DE EFLUENTES
 # =============================================================
-elif pagina == "Gestão de Efluentes":
+elif pagina_limpa == "Gestão de Efluentes":
     col_header_txt, col_header_admin = st.columns([4, 1])
     with col_header_txt:
         st.markdown("<h2 style='padding-top: 10px;'>💧 Gestão de Efluentes</h2>", unsafe_allow_html=True)
@@ -815,61 +822,410 @@ elif pagina == "Gestão de Efluentes":
             st.warning("⚠️ **Atenção:** A borda livre simulada atinge níveis de alerta. Recomenda-se acionar recirculação preventiva nas frentes de aterro.")
 
 # =============================================================
-# 4. PAINEL DE ENGENHARIA
+# 4. PAINEL DE ENGENHARIA - SUBTÓPICO 1: VIDA ÚTIL
 # =============================================================
-elif pagina == "Painel de Engenharia":
+elif "Vida Útil" in pagina_limpa or pagina_limpa == "Painel de Engenharia ▴":
     col_header_txt, col_header_admin = st.columns([4, 1])
     with col_header_txt:
-        st.markdown("<h2 style='padding-top: 10px;'>⚙️ Painel de Engenharia</h2>", unsafe_allow_html=True)
+        st.markdown("<h2 style='padding-top: 10px;'>⚙️ Painel de Engenharia — Vida Útil</h2>", unsafe_allow_html=True)
+        st.caption("Acompanhamento volumétrico, taxas de preenchimento e horizonte de vida útil das células e jazida de solo.")
     with col_header_admin:
         st.markdown(f"<div style='text-align: right; padding-top: 20px; color: {'#94a3b8' if modo_escuro else '#64748b'};'>👤 Admin</div>", unsafe_allow_html=True)
         
     st.markdown("---")
-    st.markdown("Monitoramento geotécnico, vida útil volumétrica, taxas de adensamento e infraestrutura física do Aterro Sanitário.")
     
-    col_eng1, col_eng2, col_eng3, col_eng4 = st.columns(4)
-    with col_eng1:
-        st.metric("Vida Útil Remanescente", "8.2 anos", "Célula 02 em operação")
-    with col_eng2:
-        st.metric("Taxa de Compactação", "0.93 t/m³", "+0.03 acima da meta")
-    with col_eng3:
-        st.metric("Volume Ocupado da Célula", "61.4 %", "Capacidade: 620.000 m³")
-    with col_eng4:
-        st.metric("Geração de Biogás", "345 m³/h", "Queima regularizada")
+    tab_inertes, tab_celula2a, tab_jazida = st.tabs([
+        "🧱 Vida Útil da Célula de Inertes",
+        "🏗️ Vida Útil da Célula 2A",
+        "⛰️ Vida Útil da Jazida de Terra"
+    ])
+    
+    # -------------------------------------------------------------
+    # ABA 1: Vida Útil da Célula de Inertes
+    # -------------------------------------------------------------
+    with tab_inertes:
+        st.markdown("### Capacidade & Vida Útil — Célula de Resíduos Inertes (Classe II-B)")
+        st.caption("Monitoramento volumétrico de materiais inertes de construção civil (RCD), escavação, concretos e cerâmicas no aterro de Catalão.")
+        
+        col_ci1, col_ci2, col_ci3, col_ci4 = st.columns(4)
+        with col_ci1:
+            st.metric("Vida Útil Estimada", "11.8 anos", "Projeção: até 2038")
+        with col_ci2:
+            st.metric("Capacidade Total Licenciada", "250.000 m³", "Outorga SEMAD/GO")
+        with col_ci3:
+            st.metric("Volume Ocupado Acumulado", "67.500 m³", "27.0% preenchido")
+        with col_ci4:
+            st.metric("Volume Disponível", "182.500 m³", "73.0% remanescente")
+            
+        st.markdown("<br>", unsafe_allow_html=True)
+        
+        col_ci_g1, col_ci_g2 = st.columns([2, 1])
+        with col_ci_g1:
+            st.subheader("Curva de Preenchimento Volumétrico (Inertes)")
+            anos_ci = [2022, 2023, 2024, 2025, 2026, 2028, 2030, 2032, 2034, 2036, 2038]
+            vol_ci_hist = [12000, 25000, 39000, 53000, 67500]
+            vol_ci_proj = [67500, 98000, 130000, 165000, 202000, 235000, 250000]
+            cap_max_ci = [250000] * len(anos_ci)
+            
+            fig_ci = go.Figure()
+            fig_ci.add_trace(go.Scatter(
+                x=anos_ci[:5], y=vol_ci_hist,
+                name="Volume Inerte Disposto (Histórico)",
+                mode="lines+markers",
+                line=dict(color="#10b981", width=3),
+                fill='tozeroy', fillcolor='rgba(16, 185, 129, 0.15)'
+            ))
+            fig_ci.add_trace(go.Scatter(
+                x=anos_ci[4:], y=vol_ci_proj,
+                name="Projeção de Preenchimento",
+                mode="lines+markers",
+                line=dict(color="#38bdf8", width=3, dash="dash")
+            ))
+            fig_ci.add_trace(go.Scatter(
+                x=anos_ci, y=cap_max_ci,
+                name="Capacidade Máxima Licenciada (250k m³)",
+                mode="lines",
+                line=dict(color="#ef4444", width=2, dash="dot")
+            ))
+            fig_ci.update_layout(
+                xaxis_title="Ano",
+                yaxis_title="Volume Acumulado (m³)",
+                template=plotly_template,
+                hovermode="x unified",
+                margin=dict(l=0, r=0, t=30, b=0)
+            )
+            aplicar_estilo_grafico(fig_ci)
+            st.plotly_chart(fig_ci, use_container_width=True)
+            
+        with col_ci_g2:
+            st.subheader("Composição dos Inertes Dispostos")
+            fig_comp_ci = px.pie(
+                values=[42, 28, 18, 12],
+                names=["Concreto & Alvenaria", "Solos & Cascalho", "Cerâmicas & Telhas", "Outros Inertes"],
+                hole=0.45,
+                color_discrete_sequence=['#187264', '#2dd4bf', '#38bdf8', '#94a3b8'] if modo_escuro else ['#187264', '#2a9d8f', '#0284c7', '#64748b'],
+                template=plotly_template
+            )
+            fig_comp_ci.update_traces(textposition='inside', textinfo='percent+label')
+            aplicar_estilo_grafico(fig_comp_ci)
+            st.plotly_chart(fig_comp_ci, use_container_width=True)
+            
+        st.markdown("---")
+        st.subheader("📋 Parâmetros Operacionais e Geotécnicos da Célula de Inertes")
+        df_ci_oper = pd.DataFrame({
+            "Parâmetro": [
+                "Taxa Média de Recebimento",
+                "Densidade Aparente no Maciço",
+                "Cota Atual do Platô",
+                "Cota Final de Projeto",
+                "Fator de Segurança Geotécnico (Taludes)",
+                "Sistema de Drenagem Superficial"
+            ],
+            "Valor Atual": [
+                "~490 m³/mês (~685 t/mês)",
+                "1,40 t/m³ (Compactado com Trator de Esteira)",
+                "824,50 m (Nível do Mar)",
+                "840,00 m (Nível do Mar)",
+                "FS = 1,85 (Norma ABNT NBR 11682: Estável)",
+                "Canaletas em concreto e bacia de sedimentação ativas"
+            ],
+            "Status Operacional": [
+                "🟢 Fluxo regular",
+                "🟢 Dentro do padrão",
+                "🟢 Em elevação controlada",
+                "🔵 15,5 m disponíveis até o topo",
+                "🟢 Geotecnia aprovada",
+                "🟢 Manutenção preventiva em dia"
+            ]
+        })
+        st.dataframe(df_ci_oper, use_container_width=True)
+
+    # -------------------------------------------------------------
+    # ABA 2: Vida Útil da Célula 2A
+    # -------------------------------------------------------------
+    with tab_celula2a:
+        st.markdown("### Capacidade & Saturação Volumétrica — Célula 2A (Classe II-A Ativa)")
+        st.caption("Acompanhamento da célula operacional principal de resíduos domiciliares e comerciais, taxas de adensamento e transição.")
+        
+        col_c2_1, col_c2_2, col_c2_3, col_c2_4 = st.columns(4)
+        with col_c2_1:
+            st.metric("Vida Útil Restante", "2.8 anos", "Término previsto: Mar/2029")
+        with col_c2_2:
+            st.metric("Capacidade Total Licenciada", "420.000 m³", "Geomembrana PEAD 2.0mm")
+        with col_c2_3:
+            st.metric("Volume Já Disposto", "188.200 m³", "44.8% ocupado")
+        with col_c2_4:
+            st.metric("Volume Disponível para Disposição", "231.800 m³", "55.2% livre")
+            
+        st.markdown("<br>", unsafe_allow_html=True)
+        
+        col_c2_g1, col_c2_g2 = st.columns([2, 1])
+        with col_c2_g1:
+            st.subheader("Curva de Elevação e Preenchimento — Célula 2A (2023 - 2029)")
+            anos_c2 = [2023, 2024, 2025, 2026, 2027, 2028, 2029]
+            vol_c2_hist = [45000, 95000, 142000, 188200]
+            vol_c2_proj = [188200, 265000, 345000, 420000]
+            cap_max_c2 = [420000] * len(anos_c2)
+            
+            fig_c2 = go.Figure()
+            fig_c2.add_trace(go.Scatter(
+                x=anos_c2[:4], y=vol_c2_hist,
+                name="Volume Acumulado Real (Histórico)",
+                mode="lines+markers",
+                line=dict(color="#187264", width=3),
+                fill='tozeroy', fillcolor='rgba(24, 114, 100, 0.15)'
+            ))
+            fig_c2.add_trace(go.Scatter(
+                x=anos_c2[3:], y=vol_c2_proj,
+                name="Projeção até a Saturação",
+                mode="lines+markers",
+                line=dict(color="#f59e0b", width=3, dash="dash")
+            ))
+            fig_c2.add_trace(go.Scatter(
+                x=anos_c2, y=cap_max_c2,
+                name="Cota Máxima da Célula 2A (420k m³)",
+                mode="lines",
+                line=dict(color="#ef4444", width=2, dash="dot")
+            ))
+            fig_c2.update_layout(
+                xaxis_title="Ano",
+                yaxis_title="Volume Acumulado (m³)",
+                template=plotly_template,
+                hovermode="x unified",
+                margin=dict(l=0, r=0, t=30, b=0)
+            )
+            aplicar_estilo_grafico(fig_c2)
+            st.plotly_chart(fig_c2, use_container_width=True)
+            
+        with col_c2_g2:
+            st.subheader("Balanço de Ocupação da Célula 2A")
+            fig_bal_c2 = px.pie(
+                values=[188200, 231800],
+                names=["Ocupado (188.2k m³)", "Disponível (231.8k m³)"],
+                hole=0.45,
+                color_discrete_sequence=['#187264', '#2dd4bf'] if modo_escuro else ['#187264', '#2a9d8f'],
+                template=plotly_template
+            )
+            fig_bal_c2.update_traces(textposition='inside', textinfo='percent+label')
+            aplicar_estilo_grafico(fig_bal_c2)
+            st.plotly_chart(fig_bal_c2, use_container_width=True)
+            
+        st.markdown("---")
+        st.subheader("🧭 Cronograma de Transição de Fases do Maciço Sanitário")
+        df_fases_aterro = pd.DataFrame({
+            "Fase / Célula": ["Célula 01", "Célula 2A (Em Operação)", "Célula 03 (Futura)"],
+            "Capacidade de Projeto": ["300.000 m³", "420.000 m³", "480.000 m³"],
+            "Situação Atual": ["Saturada e Encerrada", "Operação ativa com 44.8% de volume", "Terraplenagem e Licenciamento Executivo"],
+            "Período de Operação": ["2018 a 2023", "2023 a Mar/2029 (~2.8 anos restantes)", "Previsão 2029 a 2035 (~6 anos)"],
+            "Ações Técnicas Imediatas": [
+                "Monitoramento de recalque e drenagem de biogás",
+                "Compactação diária e controle de percolado",
+                "Instalação do liner PEAD programada para 2028"
+            ]
+        })
+        st.dataframe(df_fases_aterro, use_container_width=True)
+
+    # -------------------------------------------------------------
+    # ABA 3: Vida Útil da Jazida de Terra
+    # -------------------------------------------------------------
+    with tab_jazida:
+        st.markdown("### Autonomia & Reserva Mineral — Jazida de Terra de Empréstimo")
+        st.caption("Balanço volumétrico da jazida interna para selagem diária das frentes de resíduos, regularização de bermas e taludes.")
+        
+        col_jz1, col_jz2, col_jz3, col_jz4 = st.columns(4)
+        with col_jz1:
+            st.metric("Vida Útil da Jazida", "6.5 anos", "Autonomia de cobertura até 2033")
+        with col_jz2:
+            st.metric("Reserva Total Licenciada", "320.000 m³", "Área demarcada no aterro")
+        with col_jz3:
+            st.metric("Solo Já Extraído / Lavrado", "128.000 m³", "40.0% lavrado")
+        with col_jz4:
+            st.metric("Reserva de Solo Remanescente", "192.000 m³", "60.0% disponível em jazida")
+            
+        st.markdown("<br>", unsafe_allow_html=True)
+        
+        col_jz_g1, col_jz_g2 = st.columns([2, 1])
+        with col_jz_g1:
+            st.subheader("Evolução da Lavra & Reserva Remanescente de Terra (2022 - 2033)")
+            anos_jz = [2022, 2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030, 2031, 2032, 2033]
+            solo_extraido_hist = [24000, 52000, 80000, 105000, 128000]
+            solo_extraido_proj = [128000, 155000, 183000, 212000, 243000, 275000, 305000, 320000]
+            
+            fig_jz = go.Figure()
+            fig_jz.add_trace(go.Scatter(
+                x=anos_jz[:5], y=solo_extraido_hist,
+                name="Solo Já Extraído (m³)",
+                mode="lines+markers",
+                line=dict(color="#f59e0b", width=3),
+                fill='tozeroy', fillcolor='rgba(245, 158, 11, 0.15)'
+            ))
+            fig_jz.add_trace(go.Scatter(
+                x=anos_jz[4:], y=solo_extraido_proj,
+                name="Projeção de Consumo de Solo",
+                mode="lines+markers",
+                line=dict(color="#38bdf8", width=3, dash="dash")
+            ))
+            fig_jz.add_trace(go.Scatter(
+                x=anos_jz, y=[320000] * len(anos_jz),
+                name="Reserva Total da Jazida (320k m³)",
+                mode="lines",
+                line=dict(color="#ef4444", width=2, dash="dot")
+            ))
+            fig_jz.update_layout(
+                xaxis_title="Ano",
+                yaxis_title="Volume Acumulado de Solo (m³)",
+                template=plotly_template,
+                hovermode="x unified",
+                margin=dict(l=0, r=0, t=30, b=0)
+            )
+            aplicar_estilo_grafico(fig_jz)
+            st.plotly_chart(fig_jz, use_container_width=True)
+            
+        with col_jz_g2:
+            st.subheader("Aplicação do Solo Extraído")
+            fig_ap_jz = px.pie(
+                values=[65, 15, 12, 8],
+                names=["Cobertura Diária (Célula 2A)", "Diques & Taludes", "Selagem Célula Inertes", "Obras & Manutenção"],
+                hole=0.45,
+                color_discrete_sequence=['#f59e0b', '#187264', '#2dd4bf', '#94a3b8'] if modo_escuro else ['#d97706', '#187264', '#2a9d8f', '#64748b'],
+                template=plotly_template
+            )
+            fig_ap_jz.update_traces(textposition='inside', textinfo='percent+label')
+            aplicar_estilo_grafico(fig_ap_jz)
+            st.plotly_chart(fig_ap_jz, use_container_width=True)
+            
+        st.markdown("---")
+        st.subheader("📋 Balanço de Consumo de Solo & Controle Geotécnico")
+        df_jz_ctrl = pd.DataFrame({
+            "Indicador de Lavra": [
+                "Fator Solo / Lixo (Taxa de Cobertura Diária)",
+                "Consumo Mensal Médio de Solo",
+                "Espessura Média da Selagem Diária",
+                "Classificação Geotécnica do Solo",
+                "Permeabilidade Hidráulica (k)",
+                "Plano de Recuperação da Área Degradada (PRAD)"
+            ],
+            "Valor / Especificação": [
+                "1 : 5 (20% do volume do resíduo)",
+                "~1.450 m³/mês",
+                "15 a 20 cm compactados",
+                "Argila silto-arenosa (alta coesão)",
+                "k < 10⁻⁷ cm/s (Excelente impermeabilização natural)",
+                "Revegetação e drenagem das bermas de corte em conformidade"
+            ],
+            "Avaliação Técnica": [
+                "🟢 Consumo otimizado",
+                "🟢 Cobertura garantida",
+                "🟢 Conforme norma NBR 8419",
+                "🟢 Adequado para selagem",
+                "🟢 Barreira contra odores/água pluvial",
+                "🟢 Aprovado pela SEMAD"
+            ]
+        })
+        st.dataframe(df_jz_ctrl, use_container_width=True)
+
+# =============================================================
+# 4. PAINEL DE ENGENHARIA - SUBTÓPICO 2: CALENDÁRIO AMBIENTAL
+# =============================================================
+elif "Calendário Ambiental" in pagina_limpa:
+    col_header_txt, col_header_admin = st.columns([4, 1])
+    with col_header_txt:
+        st.markdown("<h2 style='padding-top: 10px;'>⚙️ Painel de Engenharia — Calendário Ambiental</h2>", unsafe_allow_html=True)
+        st.caption("Acompanhamento de obrigações perante os órgãos reguladores (SEMAD / IBAMA / Prefeitura) e auditorias periódicas.")
+    with col_header_admin:
+        st.markdown(f"<div style='text-align: right; padding-top: 20px; color: {'#94a3b8' if modo_escuro else '#64748b'};'>👤 Admin</div>", unsafe_allow_html=True)
+        
+    st.markdown("---")
+    
+    col_ca1, col_ca2, col_ca3, col_ca4 = st.columns(4)
+    with col_ca1:
+        st.metric("Licença de Operação (L.O.)", "Vigente", "Validade: Nov/2028")
+    with col_ca2:
+        st.metric("Condicionantes em Dia", "100 %", "18 de 18 cumpridas")
+    with col_ca3:
+        st.metric("Próxima Entrega Legal", "7 dias", "15/10/2026")
+    with col_ca4:
+        st.metric("Auditoria Externa", "45 dias", "Previsão Nov/2026")
         
     st.markdown("<br>", unsafe_allow_html=True)
     
-    col_g1, col_g2 = st.columns(2)
-    with col_g1:
-        st.subheader("Evolução do Adensamento Geotécnico (Recalque)")
-        meses_rec = ["Mai", "Jun", "Jul", "Ago", "Set", "Out"]
-        recalque_cm = [3.2, 5.8, 8.4, 10.9, 12.8, 14.2]
-        fig_rec = px.line(
-            x=meses_rec, y=recalque_cm, markers=True,
-            labels={"x": "Mês", "y": "Recalque Médio (cm)"},
-            template=plotly_template
-        )
-        fig_rec.update_traces(line_color="#2dd4bf" if modo_escuro else "#187264")
-        aplicar_estilo_grafico(fig_rec)
-        st.plotly_chart(fig_rec, use_container_width=True)
+    st.subheader("📅 Cronograma Anual de Condicionantes e Obrigações Ambientais (2026 / 2027)")
+    
+    col_filtro_ca1, col_filtro_ca2 = st.columns([1, 2])
+    with col_filtro_ca1:
+        filtro_status = st.selectbox("Filtrar por Status:", ["Todos", "🟡 Prazo Próximo", "🔵 Programado", "🟢 Concluído"])
         
-    with col_g2:
-        st.subheader("Balanço de Ocupação Volumétrica")
-        fig_vol = px.pie(
-            values=[380680, 239320],
-            names=["Volume Ocupado (m³)", "Volume Disponível (m³)"],
-            hole=0.45,
-            color_discrete_sequence=['#2dd4bf', '#38bdf8'] if modo_escuro else ['#187264', '#2a9d8f'],
-            template=plotly_template
-        )
-        fig_vol.update_traces(textposition='inside', textinfo='percent+label')
-        aplicar_estilo_grafico(fig_vol)
-        st.plotly_chart(fig_vol, use_container_width=True)
+    df_calendario = pd.DataFrame([
+        {
+            "Prazo Limite": "15/10/2026",
+            "Obrigação / Condicionante": "Coleta e Análise Laboratorial de Águas Subterrâneas (Poços Piezométricos)",
+            "Órgão / Destino": "SEMAD / GO",
+            "Frequência": "Trimestral",
+            "Responsável": "Laboratório Ambiental / Eng. Química",
+            "Status": "🟡 Prazo Próximo"
+        },
+        {
+            "Prazo Limite": "30/10/2026",
+            "Obrigação / Condicionante": "Relatório Mensal de Balanço Hídrico e Recirculação de Lixiviado",
+            "Órgão / Destino": "SEMAD / GO",
+            "Frequência": "Mensal",
+            "Responsável": "Engenharia de Operações",
+            "Status": "🔵 Programado"
+        },
+        {
+            "Prazo Limite": "15/11/2026",
+            "Obrigação / Condicionante": "Monitoramento Semestral de Emissões de Biogás e Eficiência do Queimador (Flare)",
+            "Órgão / Destino": "SEMAD / GO",
+            "Frequência": "Semestral",
+            "Responsável": "Consultoria de Emissões Atmosféricas",
+            "Status": "🔵 Programado"
+        },
+        {
+            "Prazo Limite": "10/12/2026",
+            "Obrigação / Condicionante": "Laudo Semestral de Estabilidade Geotécnica de Taludes e Acompanhamento de Recalque",
+            "Órgão / Destino": "SEMAD / Defesa Civil",
+            "Frequência": "Semestral",
+            "Responsável": "Engenharia Geotécnica",
+            "Status": "🔵 Programado"
+        },
+        {
+            "Prazo Limite": "31/01/2027",
+            "Obrigação / Condicionante": "Inventário Anual de Resíduos Sólidos Dispostos e Triados",
+            "Órgão / Destino": "Prefeitura de Catalão",
+            "Frequência": "Anual",
+            "Responsável": "Gerência de Operações",
+            "Status": "🔵 Programado"
+        },
+        {
+            "Prazo Limite": "31/03/2027",
+            "Obrigação / Condicionante": "Relatório Anual de Atividades Potencialmente Poluidoras (RAPP)",
+            "Órgão / Destino": "IBAMA",
+            "Frequência": "Anual",
+            "Responsável": "Departamento Jurídico-Ambiental",
+            "Status": "🔵 Programado"
+        },
+        {
+            "Prazo Limite": "30/09/2026",
+            "Obrigação / Condicionante": "Renovação e Calibração Periódica das Células de Carga da Balança Rodoviária",
+            "Órgão / Destino": "IPEM / INMETRO",
+            "Frequência": "Anual",
+            "Responsável": "Manutenção Metrológica",
+            "Status": "🟢 Concluído"
+        }
+    ])
+    
+    if filtro_status != "Todos":
+        df_calendario = df_calendario[df_calendario["Status"] == filtro_status]
+        
+    st.dataframe(df_calendario, use_container_width=True)
+    
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.info("💡 **Aviso Executivo:** As condicionantes ambientais possuem protocolo com 15 dias de antecedência mínima para validação do responsável técnico perante a SEMAD.")
 
 # =============================================================
 # 5. PAINEL EXECUTIVO
 # =============================================================
-elif pagina == "Painel Executivo":
+elif pagina_limpa == "Painel Executivo":
     col_header_txt, col_header_admin = st.columns([4, 1])
     with col_header_txt:
         st.markdown("<h2 style='padding-top: 10px;'>💼 Painel Executivo</h2>", unsafe_allow_html=True)
@@ -877,182 +1233,46 @@ elif pagina == "Painel Executivo":
         st.markdown(f"<div style='text-align: right; padding-top: 20px; color: {'#94a3b8' if modo_escuro else '#64748b'};'>👤 Admin</div>", unsafe_allow_html=True)
         
     st.markdown("---")
-    st.markdown("Visão executiva e estratégica para tomada de decisão da diretoria, planejamento de capacidade e conformidade legal.")
+    st.markdown("Visão executiva estratégica com indicadores consolidados para tomada de decisão da diretoria e gerência geral.")
     
-    sub_exec1, sub_exec2 = st.tabs([
-        "⏳ Vida Útil", 
-        "📅 Calendário Ambiental"
-    ])
+    col_ex1, col_ex2, col_ex3, col_ex4 = st.columns(4)
+    with col_ex1:
+        st.metric("Custo Médio Operacional", "R$ 49,20 / t", "-3.5% vs orçado")
+    with col_ex2:
+        st.metric("Disposição Total (2026)", "42.850 t", "Dentro do cronograma")
+    with col_ex3:
+        st.metric("Eficiência de Triagem", "98.8 %", "+0.4% no mês")
+    with col_ex4:
+        st.metric("Conformidade Ambiental", "100 %", "Licença Vigente")
+        
+    st.markdown("<br>", unsafe_allow_html=True)
     
-    # -------------------------------------------------------------
-    # SUBTÓPICO 1: Vida Útil
-    # -------------------------------------------------------------
-    with sub_exec1:
-        st.markdown("### Projeção Volumétrica & Capacidade Remanescente do Aterro")
-        st.caption("Planejamento plurianual da vida útil da célula ativa e cronograma estratégico para abertura das próximas fases.")
+    col_e1, col_e2 = st.columns(2)
+    with col_e1:
+        st.subheader("Desempenho Mensal de Resíduos Dispostos (t)")
+        meses_disp = ["Maio", "Junho", "Julho", "Agosto", "Setembro"]
+        ton_disp = [7120, 7450, 7890, 8120, 8350]
+        fig_exec1 = px.bar(
+            x=meses_disp, y=ton_disp,
+            labels={"x": "Mês", "y": "Toneladas Dispostas"},
+            template=plotly_template,
+            color_discrete_sequence=['#187264']
+        )
+        fig_exec1.update_traces(
+            hovertemplate="<b>%{x}</b><br>Disposição: %{y:,.0f} t<extra></extra>"
+        )
+        aplicar_estilo_grafico(fig_exec1)
+        st.plotly_chart(fig_exec1, use_container_width=True)
         
-        col_vu1, col_vu2, col_vu3, col_vu4 = st.columns(4)
-        with col_vu1:
-            st.metric("Vida Útil Estimada", "8.4 anos", "Horizonte: 2034")
-        with col_vu2:
-            st.metric("Capacidade Total Licenciada", "1.200.000 m³", "Células 01, 02 e 03")
-        with col_vu3:
-            st.metric("Volume Ocupado Acumulado", "468.200 m³", "39.0% do total")
-        with col_vu4:
-            st.metric("Volume Disponível", "731.800 m³", "61.0% livre")
-            
-        st.markdown("<br>", unsafe_allow_html=True)
-        
-        col_vu_g1, col_vu_g2 = st.columns([2, 1])
-        with col_vu_g1:
-            st.subheader("Curva de Preenchimento Volumétrico & Projeção Futura")
-            anos_proj = [2022, 2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030, 2031, 2032, 2033, 2034]
-            vol_historico_proj = [120000, 210000, 305000, 395000, 468200, 555000, 645000, 740000, 840000, 945000, 1055000, 1170000, 1200000]
-            cap_max_proj = [1200000] * len(anos_proj)
-            
-            fig_vida = go.Figure()
-            fig_vida.add_trace(go.Scatter(
-                x=anos_proj[:5], y=vol_historico_proj[:5],
-                name="Volume Realizado (Histórico)",
-                mode="lines+markers",
-                line=dict(color="#10b981", width=3),
-                fill='tozeroy', fillcolor='rgba(16, 185, 129, 0.15)'
-            ))
-            fig_vida.add_trace(go.Scatter(
-                x=anos_proj[4:], y=vol_historico_proj[4:],
-                name="Volume Projetado (Estimativa)",
-                mode="lines+markers",
-                line=dict(color="#38bdf8", width=3, dash="dash")
-            ))
-            fig_vida.add_trace(go.Scatter(
-                x=anos_proj, y=cap_max_proj,
-                name="Capacidade Máxima do Maciço",
-                mode="lines",
-                line=dict(color="#ef4444", width=2, dash="dot")
-            ))
-            fig_vida.update_layout(
-                xaxis_title="Ano",
-                yaxis_title="Volume Acumulado (m³)",
-                template=plotly_template,
-                hovermode="x unified",
-                margin=dict(l=0, r=0, t=30, b=0)
-            )
-            aplicar_estilo_grafico(fig_vida)
-            st.plotly_chart(fig_vida, use_container_width=True)
-            
-        with col_vu_g2:
-            st.subheader("Distribuição por Fases")
-            fig_fases = px.pie(
-                values=[280000, 188200, 731800],
-                names=["Célula 01 (Encerrada)", "Célula 02 (Ativa)", "Célula 03 (Futura)"],
-                hole=0.45,
-                color_discrete_sequence=['#64748b', '#187264', '#2dd4bf'] if modo_escuro else ['#94a3b8', '#187264', '#2a9d8f'],
-                template=plotly_template
-            )
-            fig_fases.update_traces(textposition='inside', textinfo='percent+label')
-            aplicar_estilo_grafico(fig_fases)
-            st.plotly_chart(fig_fases, use_container_width=True)
-            
-        st.markdown("---")
-        st.subheader("📋 Status Estratégico das Células Operacionais")
-        df_celulas = pd.DataFrame({
-            "Unidade / Célula": ["Célula 01", "Célula 02 (Operação Atual)", "Célula 03 (Planejamento)"],
-            "Capacidade Projetada (m³)": ["300.000 m³", "420.000 m³", "480.000 m³"],
-            "Volume Ocupado (m³)": ["280.000 m³", "188.200 m³", "0 m³"],
-            "Taxa de Ocupação": ["93.3% (Saturada)", "44.8% (Em uso)", "0.0% (Virgem)"],
-            "Tempo de Operação Estimado": ["Encerrada em 2023", "Até Março/2029 (~2.5 anos)", "Previsão 2029 a 2034 (~5.9 anos)"],
-            "Situação Regulatória": ["🟢 Pós-fechamento monitorado", "🟢 Licença de Operação Ativa", "🟡 Projeto Executivo em Licenciamento"]
-        })
-        st.dataframe(df_celulas, use_container_width=True)
-
-    # -------------------------------------------------------------
-    # SUBTÓPICO 2: Calendário Ambiental
-    # -------------------------------------------------------------
-    with sub_exec2:
-        st.markdown("### Gestão de Condicionantes, Prazos Legais & Licenciamento Ambiental")
-        st.caption("Acompanhamento executivo de obrigações perante os órgãos reguladores (SEMAD / IBAMA / Prefeitura) e auditorias periódicas.")
-        
-        col_ca1, col_ca2, col_ca3, col_ca4 = st.columns(4)
-        with col_ca1:
-            st.metric("Licença de Operação (L.O.)", "Vigente", "Validade: Nov/2028")
-        with col_ca2:
-            st.metric("Condicionantes em Dia", "100 %", "18 de 18 cumpridas")
-        with col_ca3:
-            st.metric("Próxima Entrega Legal", "7 dias", "15/10/2026")
-        with col_ca4:
-            st.metric("Auditoria Externa", "45 dias", "Previsão Nov/2026")
-            
-        st.markdown("<br>", unsafe_allow_html=True)
-        
-        st.subheader("📅 Cronograma Anual de Condicionantes e Obrigações Ambientais (2026 / 2027)")
-        
-        col_filtro_ca1, col_filtro_ca2 = st.columns([1, 2])
-        with col_filtro_ca1:
-            filtro_status = st.selectbox("Filtrar por Status:", ["Todos", "🟡 Prazo Próximo", "🔵 Programado", "🟢 Concluído"])
-            
-        df_calendario = pd.DataFrame([
-            {
-                "Prazo Limite": "15/10/2026",
-                "Obrigação / Condicionante": "Coleta e Análise Laboratorial de Águas Subterrâneas (Poços Piezométricos)",
-                "Órgão / Destino": "SEMAD / GO",
-                "Frequência": "Trimestral",
-                "Responsável": "Laboratório Ambiental / Eng. Química",
-                "Status": "🟡 Prazo Próximo"
-            },
-            {
-                "Prazo Limite": "30/10/2026",
-                "Obrigação / Condicionante": "Relatório Mensal de Balanço Hídrico e Recirculação de Lixiviado",
-                "Órgão / Destino": "SEMAD / GO",
-                "Frequência": "Mensal",
-                "Responsável": "Engenharia de Operações",
-                "Status": "🔵 Programado"
-            },
-            {
-                "Prazo Limite": "15/11/2026",
-                "Obrigação / Condicionante": "Monitoramento Semestral de Emissões de Biogás e Eficiência do Queimador (Flare)",
-                "Órgão / Destino": "SEMAD / GO",
-                "Frequência": "Semestral",
-                "Responsável": "Consultoria de Emissões Atmosféricas",
-                "Status": "🔵 Programado"
-            },
-            {
-                "Prazo Limite": "10/12/2026",
-                "Obrigação / Condicionante": "Laudo Semestral de Estabilidade Geotécnica de Taludes e Acompanhamento de Recalque",
-                "Órgão / Destino": "SEMAD / Defesa Civil",
-                "Frequência": "Semestral",
-                "Responsável": "Engenharia Geotécnica",
-                "Status": "🔵 Programado"
-            },
-            {
-                "Prazo Limite": "31/01/2027",
-                "Obrigação / Condicionante": "Inventário Anual de Resíduos Sólidos Dispostos e Triados",
-                "Órgão / Destino": "Prefeitura de Catalão",
-                "Frequência": "Anual",
-                "Responsável": "Gerência de Operações",
-                "Status": "🔵 Programado"
-            },
-            {
-                "Prazo Limite": "31/03/2027",
-                "Obrigação / Condicionante": "Relatório Anual de Atividades Potencialmente Poluidoras (RAPP)",
-                "Órgão / Destino": "IBAMA",
-                "Frequência": "Anual",
-                "Responsável": "Departamento Jurídico-Ambiental",
-                "Status": "🔵 Programado"
-            },
-            {
-                "Prazo Limite": "30/09/2026",
-                "Obrigação / Condicionante": "Renovação e Calibração Periódica das Células de Carga da Balança Rodoviária",
-                "Órgão / Destino": "IPEM / INMETRO",
-                "Frequência": "Anual",
-                "Responsável": "Manutenção Metrológica",
-                "Status": "🟢 Concluído"
-            }
-        ])
-        
-        if filtro_status != "Todos":
-            df_calendario = df_calendario[df_calendario["Status"] == filtro_status]
-            
-        st.dataframe(df_calendario, use_container_width=True)
-        
-        st.markdown("<br>", unsafe_allow_html=True)
-        st.info("💡 **Aviso Executivo:** As condicionantes ambientais possuem protocolo com 15 dias de antecedência mínima para validação do responsável técnico perante a SEMAD.")
+    with col_e2:
+        st.subheader("Distribuição dos Custos Operacionais")
+        custos = ["Operação de Máquinas", "Mão de Obra", "Tratamento de Lixiviado", "Monitoramento Ambiental", "Manutenção"]
+        valores = [38, 26, 16, 11, 9]
+        fig_exec2 = px.pie(
+            names=custos, values=valores, hole=0.4,
+            template=plotly_template,
+            color_discrete_sequence=['#187264', '#2a9d8f', '#e9c46a', '#f4a261', '#e76f51']
+        )
+        fig_exec2.update_traces(textposition='inside', textinfo='percent+label')
+        aplicar_estilo_grafico(fig_exec2)
+        st.plotly_chart(fig_exec2, use_container_width=True)

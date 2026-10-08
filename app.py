@@ -173,14 +173,79 @@ if os.path.exists(FILE_PATH):
             # CHARTS & TABLES 
             # -------------------------------------------------------------
             st.subheader("Evolução Diária do Peso (Toneladas)")
+            
+            # Check if any category is highlighted by clicking on a bar
+            selected_category = st.session_state.get("categoria_focada", None)
+            
             df_plot = df_daily_filtered.T.reset_index()
             df_plot = df_plot.rename(columns={'index': 'Dia'})
             
             fig1 = px.bar(df_plot, x='Dia', y=categorias_selecionadas, barmode='group',
                           labels={'value': 'Toneladas', 'variable': 'Categoria'},
                           color_discrete_sequence=['#187264', '#2a9d8f', '#e9c46a', '#f4a261', '#e76f51', '#264653'])
-            fig1.update_layout(hovermode='x unified', xaxis=dict(tickangle=0), margin=dict(l=0, r=0, t=30, b=0))
-            st.plotly_chart(fig1, use_container_width=True)
+            
+            for trace in fig1.data:
+                # Custom hover tooltip: shows only material type and weight in tons
+                trace.hovertemplate = f"<b>{trace.name}</b><br>Pesagem: %{{y:.2f}} t<extra></extra>"
+                if selected_category:
+                    if trace.name == selected_category:
+                        trace.marker.opacity = 1.0
+                    else:
+                        trace.marker.opacity = 0.25 # esmaecidas
+                else:
+                    trace.marker.opacity = 1.0
+
+            fig1.update_layout(
+                hovermode='closest',
+                clickmode='event+select',
+                xaxis=dict(tickangle=0),
+                margin=dict(l=0, r=0, t=30, b=0),
+                legend=dict(
+                    title_text="",
+                    itemclick="toggleothers",
+                    itemdoubleclick="toggle"
+                )
+            )
+            
+            if selected_category:
+                col_sel_info, col_sel_btn = st.columns([4, 1])
+                with col_sel_info:
+                    st.info(f"Mostrando em destaque: **{selected_category}** (as demais categorias estão esmaecidas).")
+                with col_sel_btn:
+                    if st.button("Restaurar todas", key="btn_clear_focus"):
+                        st.session_state["categoria_focada"] = None
+                        st.session_state["last_handled_point"] = None
+                        st.rerun()
+
+            chart_event = st.plotly_chart(
+                fig1, 
+                use_container_width=True, 
+                on_select="rerun", 
+                selection_mode=["points"],
+                key="grafico_evolucao"
+            )
+            
+            # Detect click on any bar to highlight that specific material category
+            if chart_event and hasattr(chart_event, 'get'):
+                sel = chart_event.get("selection", {})
+                pts = sel.get("points", [])
+                if pts:
+                    curve_idx = pts[0].get("curve_number")
+                    point_idx = pts[0].get("point_index")
+                    point_id = (curve_idx, point_idx)
+                    
+                    if point_id != st.session_state.get("last_handled_point"):
+                        st.session_state["last_handled_point"] = point_id
+                        if curve_idx is not None and curve_idx < len(fig1.data):
+                            clicked_cat = fig1.data[curve_idx].name
+                            if clicked_cat == selected_category:
+                                st.session_state["categoria_focada"] = None
+                            else:
+                                st.session_state["categoria_focada"] = clicked_cat
+                            st.rerun()
+                else:
+                    if st.session_state.get("last_handled_point") is not None and not selected_category:
+                        st.session_state["last_handled_point"] = None
             
             st.markdown("<br>", unsafe_allow_html=True)
             
@@ -191,7 +256,11 @@ if os.path.exists(FILE_PATH):
                 totals.columns = ['Categoria', 'Total (Toneladas)']
                 fig2 = px.pie(totals, names='Categoria', values='Total (Toneladas)', hole=0.4,
                               color_discrete_sequence=['#187264', '#2a9d8f', '#e9c46a', '#f4a261', '#e76f51', '#264653'])
-                fig2.update_traces(textposition='inside', textinfo='percent+label')
+                fig2.update_traces(
+                    textposition='inside', 
+                    textinfo='percent+label',
+                    hovertemplate="<b>%{label}</b><br>Pesagem: %{value:.2f} t<extra></extra>"
+                )
                 fig2.update_layout(margin=dict(l=0, r=0, t=30, b=0))
                 st.plotly_chart(fig2, use_container_width=True)
                 

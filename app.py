@@ -13,11 +13,11 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Inicializa o estado do tema (padrão escuro ativado)
+# O modo padrão é o MODO CLARO (False)
 if "toggle_tema" not in st.session_state:
-    st.session_state["toggle_tema"] = True
+    st.session_state["toggle_tema"] = False
 
-modo_escuro = st.session_state.get("toggle_tema", True)
+modo_escuro = st.session_state.get("toggle_tema", False)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 FILE_PATH = os.path.join(BASE_DIR, "BALANÇA_ATERRO.xlsx")
@@ -40,7 +40,7 @@ with st.sidebar:
     </div>
     """, unsafe_allow_html=True)
     
-    st.markdown("<div style='font-size: 11px; font-weight: bold; margin-bottom: 8px; letter-spacing: 1.5px; color: #888;'>GERENCIAMENTO</div>", unsafe_allow_html=True)
+    st.markdown(f"<div style='font-size: 11px; font-weight: bold; margin-bottom: 8px; letter-spacing: 1.5px; color: {'#94a3b8' if modo_escuro else '#64748b'};'>GERENCIAMENTO</div>", unsafe_allow_html=True)
     
     # Menus in strict Alphabetical Order
     menu_opcoes = [
@@ -59,9 +59,9 @@ with st.sidebar:
         "briefcase"
     ]
     
-    nav_bg = "rgba(255, 255, 255, 0.05)" if modo_escuro else "#f8fafc"
+    nav_bg = "#111c30" if modo_escuro else "#ffffff"
     nav_color = "#f8fafc" if modo_escuro else "#1e293b"
-    nav_hover = "#1e293b" if modo_escuro else "#e2e8f0"
+    nav_hover = "#1e293b" if modo_escuro else "#f1f5f9"
     sel_bg = "#10b981" if modo_escuro else "#187264"
     icon_color = "#2dd4bf" if modo_escuro else "#187264"
 
@@ -97,7 +97,7 @@ with st.sidebar:
     # -------------------------------------------------------------
     # SELECIONADOR DE TEMA CLARO E ESCURO ANIMADO
     # -------------------------------------------------------------
-    st.markdown("<div style='font-size: 11px; font-weight: bold; margin-bottom: 6px; letter-spacing: 1.2px; color: #888;'>TEMA DA INTERFACE</div>", unsafe_allow_html=True)
+    st.markdown(f"<div style='font-size: 11px; font-weight: bold; margin-bottom: 6px; letter-spacing: 1.2px; color: {'#94a3b8' if modo_escuro else '#64748b'};'>TEMA DA INTERFACE</div>", unsafe_allow_html=True)
     
     modo_escuro_toggle = st.toggle("Modo Escuro", value=modo_escuro, key="toggle_tema")
 
@@ -166,23 +166,17 @@ if modo_escuro:
             color: #ffffff !important;
         }
 
-        /* Força fundo escuro em TODOS os inputs, selectbox e multiselect */
+        /* Inputs e seletores escuros */
         [data-testid="stSelectbox"] div[data-baseweb="select"],
         [data-testid="stSelectbox"] div[data-baseweb="select"] > div,
-        [data-testid="stSelectbox"] div[data-baseweb="select"] div,
         [data-testid="stMultiSelect"] div[data-baseweb="select"],
         [data-testid="stMultiSelect"] div[data-baseweb="select"] > div,
-        [data-testid="stMultiSelect"] div[data-baseweb="select"] div,
-        div[data-baseweb="select"],
-        div[data-baseweb="select"] > div,
-        div[data-baseweb="base-input"],
         div[data-baseweb="base-input"] > div,
-        div[data-baseweb="input"],
         div[data-baseweb="input"] > div,
         input[data-baseweb="input"] {
             background-color: #111c30 !important;
             color: #f8fafc !important;
-            border-color: #334155 !important;
+            border: 1px solid #334155 !important;
         }
         
         div[data-baseweb="select"] span {
@@ -192,7 +186,7 @@ if modo_escuro:
             fill: #f8fafc !important;
         }
 
-        /* Tags selecionadas no Multiselect */
+        /* Tags no Multiselect */
         div[data-baseweb="tag"] {
             background-color: #0d3830 !important;
             border: 1px solid #10b981 !important;
@@ -216,11 +210,11 @@ if modo_escuro:
             background-color: #0f766e !important;
         }
 
-        /* Cards de Métricas */
-        [data-testid="stMetricValue"] {
+        /* Cards de Métricas no Escuro */
+        [data-testid="stMetricValue"], [data-testid="stMetricValue"] div {
             color: #34d399 !important;
         }
-        [data-testid="stMetricLabel"] {
+        [data-testid="stMetricLabel"], [data-testid="stMetricLabel"] p {
             color: #cbd5e1 !important;
             font-weight: 600 !important;
         }
@@ -231,7 +225,7 @@ if modo_escuro:
             padding: 12px !important;
         }
 
-        /* Abas internas */
+        /* Abas no Escuro */
         button[data-baseweb="tab"] {
             color: #94a3b8 !important;
         }
@@ -246,13 +240,63 @@ else:
             background-color: #ffffff !important;
             color: #1e293b !important;
         }
+        
         [data-testid="stSidebar"] {
             background-color: #f8fafc !important;
             border-right: 1px solid #e2e8f0 !important;
         }
+        
+        /* Rótulos e Textos no Modo Claro */
         div[data-testid="stWidgetLabel"] p,
-        label[data-testid="stWidgetLabel"] p {
+        div[data-testid="stWidgetLabel"] label,
+        label[data-testid="stWidgetLabel"],
+        label[data-testid="stWidgetLabel"] p,
+        [data-testid="stWidgetLabel"] span {
             color: #1e293b !important;
+            font-weight: 600 !important;
+            font-size: 14px !important;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            color: #0f172a !important;
+        }
+
+        /* Inputs e seletores claros */
+        [data-testid="stSelectbox"] div[data-baseweb="select"],
+        [data-testid="stSelectbox"] div[data-baseweb="select"] > div,
+        [data-testid="stMultiSelect"] div[data-baseweb="select"],
+        [data-testid="stMultiSelect"] div[data-baseweb="select"] > div,
+        div[data-baseweb="base-input"] > div,
+        div[data-baseweb="input"] > div,
+        input[data-baseweb="input"] {
+            background-color: #ffffff !important;
+            color: #0f172a !important;
+            border: 1px solid #cbd5e1 !important;
+        }
+        
+        div[data-baseweb="select"] span {
+            color: #0f172a !important;
+        }
+        div[data-baseweb="select"] svg {
+            fill: #0f172a !important;
+        }
+
+        /* Tags no Multiselect no claro */
+        div[data-baseweb="tag"] {
+            background-color: #e6f4f1 !important;
+            border: 1px solid #187264 !important;
+        }
+        div[data-baseweb="tag"] * {
+            color: #187264 !important;
+        }
+
+        /* Cards de Métricas no Claro: NÚMEROS VERDES E NÍTIDOS */
+        [data-testid="stMetricValue"], [data-testid="stMetricValue"] div {
+            color: #187264 !important;
+            font-weight: bold !important;
+        }
+        [data-testid="stMetricLabel"], [data-testid="stMetricLabel"] p {
+            color: #475569 !important;
             font-weight: 600 !important;
         }
         [data-testid="stMetricWidget"] {
@@ -260,6 +304,16 @@ else:
             border: 1px solid #e2e8f0 !important;
             border-radius: 10px !important;
             padding: 12px !important;
+        }
+
+        /* Abas no Modo Claro: TÍTULOS ESCUROS E NÍTIDOS */
+        button[data-baseweb="tab"] {
+            color: #475569 !important;
+            font-weight: 600 !important;
+        }
+        button[data-baseweb="tab"][aria-selected="true"] {
+            color: #187264 !important;
+            border-bottom-color: #187264 !important;
         }
     """
 
@@ -361,7 +415,7 @@ if pagina == "Cálculo de Reciclagem":
     with col_header_txt:
         st.markdown("<h2 style='padding-top: 10px;'>♻️ Cálculo de Reciclagem</h2>", unsafe_allow_html=True)
     with col_header_admin:
-        st.markdown("<div style='text-align: right; padding-top: 20px; color: gray;'>👤 Admin</div>", unsafe_allow_html=True)
+        st.markdown(f"<div style='text-align: right; padding-top: 20px; color: {'#94a3b8' if modo_escuro else '#64748b'};'>👤 Admin</div>", unsafe_allow_html=True)
         
     st.markdown("---")
     st.markdown("Insira os dados semanais abaixo para obter o diagnóstico e as taxas de eficiência de reciclagem da cooperativa.")
@@ -424,7 +478,7 @@ elif pagina == "Dashboard de Controle":
     with col_header_txt:
         st.markdown("<h2 style='padding-top: 10px;'>📊 Dashboard de Controle</h2>", unsafe_allow_html=True)
     with col_header_admin:
-        st.markdown("<div style='text-align: right; padding-top: 20px; color: gray;'>👤 Admin</div>", unsafe_allow_html=True)
+        st.markdown(f"<div style='text-align: right; padding-top: 20px; color: {'#94a3b8' if modo_escuro else '#64748b'};'>👤 Admin</div>", unsafe_allow_html=True)
         
     st.markdown("---")
     
@@ -624,7 +678,7 @@ elif pagina == "Gestão de Efluentes":
     with col_header_txt:
         st.markdown("<h2 style='padding-top: 10px;'>💧 Gestão de Efluentes</h2>", unsafe_allow_html=True)
     with col_header_admin:
-        st.markdown("<div style='text-align: right; padding-top: 20px; color: gray;'>👤 Admin</div>", unsafe_allow_html=True)
+        st.markdown(f"<div style='text-align: right; padding-top: 20px; color: {'#94a3b8' if modo_escuro else '#64748b'};'>👤 Admin</div>", unsafe_allow_html=True)
         
     st.markdown("---")
     
@@ -768,7 +822,7 @@ elif pagina == "Painel de Engenharia":
     with col_header_txt:
         st.markdown("<h2 style='padding-top: 10px;'>⚙️ Painel de Engenharia</h2>", unsafe_allow_html=True)
     with col_header_admin:
-        st.markdown("<div style='text-align: right; padding-top: 20px; color: gray;'>👤 Admin</div>", unsafe_allow_html=True)
+        st.markdown(f"<div style='text-align: right; padding-top: 20px; color: {'#94a3b8' if modo_escuro else '#64748b'};'>👤 Admin</div>", unsafe_allow_html=True)
         
     st.markdown("---")
     st.markdown("Monitoramento geotécnico, vida útil volumétrica, taxas de adensamento e infraestrutura física do Aterro Sanitário.")
@@ -820,7 +874,7 @@ elif pagina == "Painel Executivo":
     with col_header_txt:
         st.markdown("<h2 style='padding-top: 10px;'>💼 Painel Executivo</h2>", unsafe_allow_html=True)
     with col_header_admin:
-        st.markdown("<div style='text-align: right; padding-top: 20px; color: gray;'>👤 Admin</div>", unsafe_allow_html=True)
+        st.markdown(f"<div style='text-align: right; padding-top: 20px; color: {'#94a3b8' if modo_escuro else '#64748b'};'>👤 Admin</div>", unsafe_allow_html=True)
         
     st.markdown("---")
     st.markdown("Visão executiva estratégica com indicadores consolidados para tomada de decisão da diretoria e gerência geral.")

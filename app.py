@@ -42,39 +42,75 @@ with st.sidebar:
     
     st.markdown(f"<div style='font-size: 11px; font-weight: bold; margin-bottom: 8px; letter-spacing: 1.5px; color: {'#94a3b8' if modo_escuro else '#64748b'};'>GERENCIAMENTO</div>", unsafe_allow_html=True)
     
-    # Menus em Ordem Alfabética estrita com subtópicos aninhados em Painel de Engenharia
-    menu_opcoes = [
-        "Cálculo de Reciclagem",
-        "Dashboard de Controle",
-        "Gestão de Efluentes",
-        "Painel de Engenharia ▴",
-        "\u00A0\u00A0↳ Vida Útil",
-        "\u00A0\u00A0↳ Calendário Ambiental",
-        "Painel Executivo"
-    ]
-    
-    menu_icones = [
-        "calculator",
-        "speedometer2",
-        "droplet-half",
-        "gear-wide-connected",
-        "hourglass-split",
-        "calendar-event",
-        "briefcase"
-    ]
-    
+    # -------------------------------------------------------------
+    # GESTÃO DE ESTADO DO MENU LATERAL (EXPANSÃO DE SUBTÓPICOS)
+    # -------------------------------------------------------------
+    if "eng_expandido" not in st.session_state:
+        st.session_state["eng_expandido"] = False
+
+    if "pagina_atual" not in st.session_state:
+        st.session_state["pagina_atual"] = "Dashboard de Controle"
+
+    eng_expandido = st.session_state["eng_expandido"]
+    pagina_atual = st.session_state["pagina_atual"]
+
+    # Menus em Ordem Alfabética estrita: subtópicos ocultos até Painel de Engenharia ser selecionado
+    if eng_expandido:
+        menu_opcoes = [
+            "Cálculo de Reciclagem",
+            "Dashboard de Controle",
+            "Gestão de Efluentes",
+            "Painel de Engenharia ▴",
+            "\u00A0\u00A0↳ Vida Útil",
+            "\u00A0\u00A0↳ Calendário Ambiental",
+            "Painel Executivo"
+        ]
+        menu_icones = [
+            "calculator",
+            "speedometer2",
+            "droplet-half",
+            "gear-wide-connected",
+            "hourglass-split",
+            "calendar-event",
+            "briefcase"
+        ]
+    else:
+        menu_opcoes = [
+            "Cálculo de Reciclagem",
+            "Dashboard de Controle",
+            "Gestão de Efluentes",
+            "Painel de Engenharia ▾",
+            "Painel Executivo"
+        ]
+        menu_icones = [
+            "calculator",
+            "speedometer2",
+            "droplet-half",
+            "gear-wide-connected",
+            "briefcase"
+        ]
+
+    # Determina o índice padrão ativo
+    default_idx = 1
+    for idx, op in enumerate(menu_opcoes):
+        op_clean = op.replace('\u00A0', '').replace('↳', '').strip()
+        if pagina_atual in op_clean or op_clean in pagina_atual:
+            default_idx = idx
+            break
+
     nav_bg = "#111c30" if modo_escuro else "#ffffff"
     nav_color = "#f8fafc" if modo_escuro else "#1e293b"
     nav_hover = "#1e293b" if modo_escuro else "#f1f5f9"
     sel_bg = "#10b981" if modo_escuro else "#187264"
     icon_color = "#2dd4bf" if modo_escuro else "#187264"
 
-    pagina = option_menu(
+    pagina_raw = option_menu(
         menu_title=None,
         options=menu_opcoes,
         icons=menu_icones,
         menu_icon="cast",
-        default_index=1, # Default to Dashboard de Controle
+        default_index=default_idx,
+        key=f"menu_nav_{eng_expandido}",
         styles={
             "container": {"padding": "0!important", "background-color": "transparent"},
             "icon": {"font-size": "17px", "color": icon_color},
@@ -94,9 +130,36 @@ with st.sidebar:
             },
         }
     )
-    
-    # Normalização da rota selecionada para roteamento interno
-    pagina_limpa = pagina.replace('\u00A0', '').replace('↳', '').strip()
+
+    # Processamento dinâmico de clique para expandir/ocultar os subtópicos
+    raw_clean = pagina_raw.replace('\u00A0', '').replace('↳', '').strip()
+
+    if not eng_expandido:
+        # Quando colapsado: se o usuário clica em Painel de Engenharia, expande os subtópicos e abre Vida Útil
+        if "Painel de Engenharia" in raw_clean:
+            st.session_state["eng_expandido"] = True
+            st.session_state["pagina_atual"] = "Vida Útil"
+            st.rerun()
+        else:
+            st.session_state["pagina_atual"] = raw_clean
+    else:
+        # Quando expandido:
+        if "Painel de Engenharia" in raw_clean:
+            # Se clicou no próprio cabeçalho aberto, recolhe os subtópicos
+            st.session_state["eng_expandido"] = False
+            st.session_state["pagina_atual"] = "Dashboard de Controle"
+            st.rerun()
+        elif "Vida Útil" in raw_clean:
+            st.session_state["pagina_atual"] = "Vida Útil"
+        elif "Calendário Ambiental" in raw_clean:
+            st.session_state["pagina_atual"] = "Calendário Ambiental"
+        else:
+            # Se clicou em outro módulo (Reciclagem, Dashboard, Efluentes, Executivo), recolhe os subtópicos
+            st.session_state["eng_expandido"] = False
+            st.session_state["pagina_atual"] = raw_clean
+            st.rerun()
+
+    pagina_limpa = st.session_state["pagina_atual"]
 
     st.markdown("<div style='margin-top: 35px;'></div>", unsafe_allow_html=True)
     st.markdown("---")
@@ -824,7 +887,7 @@ elif pagina_limpa == "Gestão de Efluentes":
 # =============================================================
 # 4. PAINEL DE ENGENHARIA - SUBTÓPICO 1: VIDA ÚTIL
 # =============================================================
-elif "Vida Útil" in pagina_limpa or pagina_limpa == "Painel de Engenharia ▴":
+elif "Vida Útil" in pagina_limpa or "Painel de Engenharia" in pagina_limpa:
     col_header_txt, col_header_admin = st.columns([4, 1])
     with col_header_txt:
         st.markdown("<h2 style='padding-top: 10px;'>⚙️ Painel de Engenharia — Vida Útil</h2>", unsafe_allow_html=True)

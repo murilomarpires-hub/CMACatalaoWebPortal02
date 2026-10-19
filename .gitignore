@@ -12,6 +12,8 @@ __pycache__/
 .DS_Store
 Thumbs.db
 desktop.ini
+~$*
+~$*.xlsx
 
 # Large files & Desktop Administrative folders (not part of the web portal)
 *.mp4

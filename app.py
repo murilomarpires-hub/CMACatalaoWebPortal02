@@ -13,12 +13,6 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# O modo padrão é o MODO CLARO (False)
-if "toggle_tema" not in st.session_state:
-    st.session_state["toggle_tema"] = False
-
-modo_escuro = st.session_state.get("toggle_tema", False)
-
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 FILE_PATH = os.path.join(BASE_DIR, "BALANÇA_ATERRO.xlsx")
 LOGO_PATH = os.path.join(BASE_DIR, "Logo", "image (2).png")
@@ -40,7 +34,7 @@ with st.sidebar:
     </div>
     """, unsafe_allow_html=True)
     
-    st.markdown(f"<div style='font-size: 11px; font-weight: bold; margin-bottom: 8px; letter-spacing: 1.5px; color: {'#94a3b8' if modo_escuro else '#64748b'};'>GERENCIAMENTO</div>", unsafe_allow_html=True)
+    st.markdown("<div style='font-size: 11px; font-weight: bold; margin-bottom: 8px; letter-spacing: 1.5px; color: #64748b;'>GERENCIAMENTO</div>", unsafe_allow_html=True)
     
     # -------------------------------------------------------------
     # GESTÃO DE ESTADO DO MENU LATERAL (EXPANSÃO DE SUBTÓPICOS)
@@ -98,11 +92,11 @@ with st.sidebar:
             default_idx = idx
             break
 
-    nav_bg = "#111c30" if modo_escuro else "#ffffff"
-    nav_color = "#f8fafc" if modo_escuro else "#1e293b"
-    nav_hover = "#1e293b" if modo_escuro else "#f1f5f9"
-    sel_bg = "#10b981" if modo_escuro else "#187264"
-    icon_color = "#2dd4bf" if modo_escuro else "#187264"
+    nav_bg = "#ffffff"
+    nav_color = "#1e293b"
+    nav_hover = "#f1f5f9"
+    sel_bg = "#187264"
+    icon_color = "#187264"
 
     pagina_raw = option_menu(
         menu_title=None,
@@ -161,31 +155,20 @@ with st.sidebar:
 
     pagina_limpa = st.session_state["pagina_atual"]
 
-    st.markdown("<div style='margin-top: 35px;'></div>", unsafe_allow_html=True)
-    st.markdown("---")
-    
-    # -------------------------------------------------------------
-    # SELECIONADOR DE TEMA CLARO E ESCURO ANIMADO
-    # -------------------------------------------------------------
-    st.markdown(f"<div style='font-size: 11px; font-weight: bold; margin-bottom: 6px; letter-spacing: 1.2px; color: {'#94a3b8' if modo_escuro else '#64748b'};'>TEMA DA INTERFACE</div>", unsafe_allow_html=True)
-    
-    modo_escuro_toggle = st.toggle("Modo Escuro", value=modo_escuro, key="toggle_tema")
-
 # -------------------------------------------------------------
-# PALETAS DE CORES ADAPTATIVAS (ALTO CONTRASTE)
+# PALETAS DE CORES & ESTILO DOS GRÁFICOS
 # -------------------------------------------------------------
-plotly_template = "plotly_dark" if modo_escuro else "plotly_white"
+plotly_template = "plotly_white"
 
-cores_paleta = (
-    ['#2dd4bf', '#38bdf8', '#fbbf24', '#fb923c', '#f87171', '#c084fc']
-    if modo_escuro else
-    ['#0d9488', '#0284c7', '#d97706', '#ea580c', '#e11d48', '#7c3aed']
-)
+cores_paleta = [
+    '#187264', '#0284c7', '#f59e0b', '#10b981', '#6366f1', 
+    '#ec4899', '#8b5cf6', '#14b8a6', '#f97316', '#64748b'
+]
 
 def aplicar_estilo_grafico(fig):
-    """Garante fundo 100% transparente, eixos visíveis e legendas legíveis em ambos os modos."""
-    cor_texto = "#f8fafc" if modo_escuro else "#1e293b"
-    cor_grid = "#334155" if modo_escuro else "#e2e8f0"
+    """Garante fundo 100% transparente, eixos visíveis e legendas legíveis."""
+    cor_texto = "#1e293b"
+    cor_grid = "#e2e8f0"
     fig.update_layout(
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
@@ -207,105 +190,15 @@ def aplicar_estilo_grafico(fig):
     )
 
 # -------------------------------------------------------------
-# ESTILIZAÇÃO CSS GLOBAL (COMPATIBILIDADE CLARO / ESCURO)
+# ESTILIZAÇÃO CSS GLOBAL (MODO CLARO PROFISSIONAL)
 # -------------------------------------------------------------
-if modo_escuro:
-    css_modo_especifico = """
-        body, [data-testid="stAppViewContainer"], [data-testid="stHeader"] {
-            background-color: #0b1120 !important;
-            color: #f1f5f9 !important;
+css_tema = """
+    <style>
+        .block-container {
+            padding-top: 1.8rem;
+            padding-bottom: 2rem;
         }
         
-        [data-testid="stSidebar"] {
-            background-color: #060b14 !important;
-            border-right: 1px solid #1e293b !important;
-        }
-        
-        /* Rótulos e Textos dos Filtros e Widgets */
-        div[data-testid="stWidgetLabel"] p,
-        div[data-testid="stWidgetLabel"] label,
-        label[data-testid="stWidgetLabel"],
-        label[data-testid="stWidgetLabel"] p,
-        [data-testid="stWidgetLabel"] span {
-            color: #f8fafc !important;
-            font-weight: 600 !important;
-            font-size: 14px !important;
-        }
-        
-        h1, h2, h3, h4, h5, h6 {
-            color: #ffffff !important;
-        }
-
-        /* Inputs e seletores escuros */
-        [data-testid="stSelectbox"] div[data-baseweb="select"],
-        [data-testid="stSelectbox"] div[data-baseweb="select"] > div,
-        [data-testid="stMultiSelect"] div[data-baseweb="select"],
-        [data-testid="stMultiSelect"] div[data-baseweb="select"] > div,
-        div[data-baseweb="base-input"] > div,
-        div[data-baseweb="input"] > div,
-        input[data-baseweb="input"] {
-            background-color: #111c30 !important;
-            color: #f8fafc !important;
-            border: 1px solid #334155 !important;
-        }
-        
-        div[data-baseweb="select"] span {
-            color: #f8fafc !important;
-        }
-        div[data-baseweb="select"] svg {
-            fill: #f8fafc !important;
-        }
-
-        /* Tags no Multiselect */
-        div[data-baseweb="tag"] {
-            background-color: #0d3830 !important;
-            border: 1px solid #10b981 !important;
-        }
-        div[data-baseweb="tag"] * {
-            color: #ffffff !important;
-        }
-
-        /* Dropdown aberto */
-        div[data-baseweb="popover"],
-        ul[data-baseweb="menu"],
-        div[data-baseweb="popover"] > div {
-            background-color: #111c30 !important;
-            border: 1px solid #334155 !important;
-        }
-        li[data-baseweb="menu-item"] {
-            color: #f8fafc !important;
-            background-color: #111c30 !important;
-        }
-        li[data-baseweb="menu-item"]:hover {
-            background-color: #0f766e !important;
-        }
-
-        /* Cards de Métricas no Escuro */
-        [data-testid="stMetricValue"], [data-testid="stMetricValue"] div {
-            color: #34d399 !important;
-        }
-        [data-testid="stMetricLabel"], [data-testid="stMetricLabel"] p {
-            color: #cbd5e1 !important;
-            font-weight: 600 !important;
-        }
-        [data-testid="stMetricWidget"] {
-            background-color: #111c30 !important;
-            border: 1px solid #1e293b !important;
-            border-radius: 10px !important;
-            padding: 12px !important;
-        }
-
-        /* Abas no Escuro */
-        button[data-baseweb="tab"] {
-            color: #94a3b8 !important;
-        }
-        button[data-baseweb="tab"][aria-selected="true"] {
-            color: #2dd4bf !important;
-            border-bottom-color: #2dd4bf !important;
-        }
-    """
-else:
-    css_modo_especifico = """
         body, [data-testid="stAppViewContainer"], [data-testid="stHeader"] {
             background-color: #ffffff !important;
             color: #1e293b !important;
@@ -316,7 +209,7 @@ else:
             border-right: 1px solid #e2e8f0 !important;
         }
         
-        /* Rótulos e Textos no Modo Claro */
+        /* Rótulos e Textos */
         div[data-testid="stWidgetLabel"] p,
         div[data-testid="stWidgetLabel"] label,
         label[data-testid="stWidgetLabel"],
@@ -331,7 +224,7 @@ else:
             color: #0f172a !important;
         }
 
-        /* Inputs e seletores claros */
+        /* Inputs e seletores */
         [data-testid="stSelectbox"] div[data-baseweb="select"],
         [data-testid="stSelectbox"] div[data-baseweb="select"] > div,
         [data-testid="stMultiSelect"] div[data-baseweb="select"],
@@ -351,7 +244,7 @@ else:
             fill: #0f172a !important;
         }
 
-        /* Tags no Multiselect no claro */
+        /* Tags no Multiselect */
         div[data-baseweb="tag"] {
             background-color: #e6f4f1 !important;
             border: 1px solid #187264 !important;
@@ -360,7 +253,7 @@ else:
             color: #187264 !important;
         }
 
-        /* Cards de Métricas no Claro: NÚMEROS VERDES E NÍTIDOS */
+        /* Cards de Métricas: Números Verdes e Nítidos */
         [data-testid="stMetricValue"], [data-testid="stMetricValue"] div {
             color: #187264 !important;
             font-weight: bold !important;
@@ -376,7 +269,7 @@ else:
             padding: 12px !important;
         }
 
-        /* Abas no Modo Claro: TÍTULOS ESCUROS E NÍTIDOS */
+        /* Abas: Títulos Escuros e Nítidos */
         button[data-baseweb="tab"] {
             color: #475569 !important;
             font-weight: 600 !important;
@@ -385,83 +278,6 @@ else:
             color: #187264 !important;
             border-bottom-color: #187264 !important;
         }
-    """
-
-css_tema = f"""
-    <style>
-        .block-container {{
-            padding-top: 1.8rem;
-            padding-bottom: 2rem;
-        }}
-        
-        /* ----------------------------------------------------------- */
-        /* ANIMAÇÃO E DESIGN DO SELECIONADOR (CLARO / ESCURO)          */
-        /* ----------------------------------------------------------- */
-        .st-key-toggle_tema {{
-            margin-top: 5px;
-            margin-bottom: 15px;
-        }}
-        
-        .st-key-toggle_tema label p {{
-            font-size: 13px !important;
-            font-weight: 600 !important;
-            color: {'#e2e8f0' if modo_escuro else '#334155'} !important;
-        }}
-
-        /* O Pill Switch (Cápsula) */
-        .st-key-toggle_tema div[data-baseweb="toggle"] {{
-            width: 70px !important;
-            height: 34px !important;
-            border-radius: 9999px !important;
-            padding: 3px !important;
-            transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.4s ease, box-shadow 0.3s ease !important;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2) !important;
-            position: relative !important;
-        }}
-
-        /* Estado Claro (Desmarcado): Verde vibrante */
-        .st-key-toggle_tema input:not(:checked) + div[data-baseweb="toggle"] {{
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
-            border: 2px solid #059669 !important;
-        }}
-
-        /* Estado Escuro (Marcado): Verde escuro/azulado profundo */
-        .st-key-toggle_tema input:checked + div[data-baseweb="toggle"] {{
-            background: linear-gradient(135deg, #0d3830 0%, #061f1a 100%) !important;
-            border: 2px solid #082d26 !important;
-        }}
-
-        /* O Botão Deslizante (Knob Circular) */
-        .st-key-toggle_tema div[data-baseweb="toggle"] > div {{
-            width: 26px !important;
-            height: 26px !important;
-            border-radius: 50% !important;
-            transition: transform 0.38s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.35s ease, box-shadow 0.3s ease !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            box-shadow: 0 3px 8px rgba(0,0,0,0.35) !important;
-        }}
-
-        /* Knob no Modo Claro: Círculo Branco com ícone de Sol ☀️ */
-        .st-key-toggle_tema input:not(:checked) + div[data-baseweb="toggle"] > div {{
-            background-color: #ffffff !important;
-            transform: translateX(0px) !important;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%2384cc16" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>') !important;
-            background-repeat: no-repeat !important;
-            background-position: center !important;
-        }}
-
-        /* Knob no Modo Escuro: Círculo Preto com ícone de Lua e estrelas 🌙✨ */
-        .st-key-toggle_tema input:checked + div[data-baseweb="toggle"] > div {{
-            background-color: #051613 !important;
-            transform: translateX(36px) !important;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="%2338bdf8" stroke="%2338bdf8" stroke-width="1.5"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/><path d="M19 3v4"/><path d="M21 5h-4"/></svg>') !important;
-            background-repeat: no-repeat !important;
-            background-position: center !important;
-        }}
-
-        {css_modo_especifico}
     </style>
 """
 st.markdown(css_tema, unsafe_allow_html=True)
@@ -485,7 +301,7 @@ if pagina_limpa == "Cálculo de Reciclagem":
     with col_header_txt:
         st.markdown("<h2 style='padding-top: 10px;'>♻️ Cálculo de Reciclagem</h2>", unsafe_allow_html=True)
     with col_header_admin:
-        st.markdown(f"<div style='text-align: right; padding-top: 20px; color: {'#94a3b8' if modo_escuro else '#64748b'};'>👤 Admin</div>", unsafe_allow_html=True)
+        st.markdown("<div style='text-align: right; padding-top: 20px; color: #64748b;'>👤 Admin</div>", unsafe_allow_html=True)
         
     st.markdown("---")
     st.markdown("Insira os dados semanais abaixo para obter o diagnóstico e as taxas de eficiência de reciclagem da cooperativa.")
@@ -548,7 +364,7 @@ elif pagina_limpa == "Dashboard de Controle":
     with col_header_txt:
         st.markdown("<h2 style='padding-top: 10px;'>📊 Dashboard de Controle</h2>", unsafe_allow_html=True)
     with col_header_admin:
-        st.markdown(f"<div style='text-align: right; padding-top: 20px; color: {'#94a3b8' if modo_escuro else '#64748b'};'>👤 Admin</div>", unsafe_allow_html=True)
+        st.markdown("<div style='text-align: right; padding-top: 20px; color: #64748b;'>👤 Admin</div>", unsafe_allow_html=True)
         
     st.markdown("---")
     
@@ -556,38 +372,41 @@ elif pagina_limpa == "Dashboard de Controle":
         file_mtime = os.path.getmtime(FILE_PATH)
         sheet_names = get_sheet_names(FILE_PATH, file_mtime)
         
-        mes_padrao = sheet_names[0]
-        df_temp = load_sheet_data(FILE_PATH, mes_padrao, file_mtime)
-        dias_idx = df_temp.index[df_temp.iloc[:, 0] == 'DIAS'].tolist()
-        all_categories = []
-        if dias_idx:
-            start_row = dias_idx[0] + 2
-            for i in range(start_row, len(df_temp)):
-                cat = str(df_temp.iloc[i, 0]).strip()
-                if cat == 'nan' or cat == 'None' or cat == '' or cat.startswith('SOMA') or cat.startswith('TEMPO') or cat.startswith('DIST'):
-                    break
-                all_categories.append(cat)
-                
         col_filtro1, col_filtro2 = st.columns([1, 3])
         with col_filtro1:
-            mes_selecionado = st.selectbox("📅 Período (Mês)", sheet_names)
+            # Seleciona por padrão o mês mais recente disponível
+            default_month_idx = max(0, len(sheet_names) - 1)
+            mes_selecionado = st.selectbox("📅 Período (Mês)", sheet_names, index=default_month_idx)
+            
+        df = load_sheet_data(FILE_PATH, mes_selecionado, file_mtime)
+        dias_idx = df.index[df.iloc[:, 0] == 'DIAS'].tolist()
+        categories_month = []
+        if dias_idx:
+            start_row = dias_idx[0] + 2
+            for i in range(start_row, len(df)):
+                cat = str(df.iloc[i, 0]).strip()
+                if cat == 'nan' or cat == 'None' or cat == '' or cat.startswith('SOMA') or cat.startswith('TEMPO') or cat.startswith('DIST'):
+                    break
+                categories_month.append(cat)
+                
         with col_filtro2:
             categorias_selecionadas = st.multiselect(
                 "🏷️ Categorias (Filtro Geral)",
-                options=all_categories,
-                default=all_categories
+                options=categories_month,
+                default=categories_month,
+                key=f"filtro_cat_{mes_selecionado}"
             )
         
         st.markdown("<br>", unsafe_allow_html=True)
-    
-        df = load_sheet_data(FILE_PATH, mes_selecionado, file_mtime)
-        dias_idx = df.index[df.iloc[:, 0] == 'DIAS'].tolist()
         
         if dias_idx and categorias_selecionadas:
             start_row = dias_idx[0] + 2 
             
-            days_numbers = df.iloc[dias_idx[0], 1:32].astype(str).tolist()
-            days_names = df.iloc[dias_idx[0] + 1, 1:32].astype(str).tolist()
+            # Detecta com precisão o número de dias no mês selecionado
+            raw_days = df.iloc[dias_idx[0], 1:32].dropna().tolist()
+            num_days = len(raw_days)
+            days_numbers = [str(d) for d in raw_days]
+            days_names = df.iloc[dias_idx[0] + 1, 1:1 + num_days].astype(str).tolist()
             x_labels = [f"{num}<br>{name}" if name != 'nan' else str(num) for num, name in zip(days_numbers, days_names)]
             
             daily_data = []
@@ -597,11 +416,11 @@ elif pagina_limpa == "Dashboard de Controle":
                 if cat == 'nan' or cat == 'None' or cat == '' or cat.startswith('SOMA') or cat.startswith('TEMPO') or cat.startswith('DIST'):
                     break
                 categories.append(cat)
-                row_vals = df.iloc[i, 1:32].values
+                row_vals = df.iloc[i, 1:1 + num_days].values
                 daily_data.append(row_vals)
                 
             df_daily = pd.DataFrame(daily_data, columns=x_labels, index=categories)
-            df_daily = df_daily.replace(['FERIADO', 'MANUT.', 'MANUT', ' '], 0)
+            df_daily = df_daily.replace(['FERIADO', 'MANUT.', 'MANUT', 'CHUVA', ' '], 0)
             df_daily = df_daily.apply(pd.to_numeric, errors='coerce').fillna(0)
             df_daily = df_daily / 1000.0  # KG to Tonnes
             
@@ -622,20 +441,22 @@ elif pagina_limpa == "Dashboard de Controle":
                         
             df_daily_filtered = df_daily.loc[categorias_selecionadas]
             
-            # KPI Cards
-            num_cards = min(len(categorias_selecionadas), 5) 
-            if num_cards > 0:
-                cols_kpi = st.columns(num_cards)
-                for i in range(num_cards):
-                    cat = categorias_selecionadas[i]
-                    if summary_data and cat in summary_data:
-                        val = summary_data[cat]
-                    else:
-                        val = df_daily_filtered.loc[cat].sum()
-                        
-                    with cols_kpi[i]:
-                        val_format = f"{float(val):,.2f} t".replace(',', 'X').replace('.', ',').replace('X', '.')
-                        st.metric(label=cat, value=val_format)
+            # KPI Cards (Exibição responsiva de todas as categorias selecionadas)
+            if len(categorias_selecionadas) > 0:
+                for chunk_idx in range(0, len(categorias_selecionadas), 5):
+                    chunk_cats = categorias_selecionadas[chunk_idx:chunk_idx + 5]
+                    cols_kpi = st.columns(len(chunk_cats))
+                    for i, cat in enumerate(chunk_cats):
+                        if summary_data and cat in summary_data:
+                            val = summary_data[cat]
+                        elif cat in df_daily_filtered.index:
+                            val = df_daily_filtered.loc[cat].sum()
+                        else:
+                            val = 0.0
+                            
+                        with cols_kpi[i]:
+                            val_format = f"{float(val):,.2f} t".replace(',', 'X').replace('.', ',').replace('X', '.')
+                            st.metric(label=cat, value=val_format)
             
             st.markdown("<br>", unsafe_allow_html=True)
             
@@ -748,7 +569,7 @@ elif pagina_limpa == "Gestão de Efluentes":
     with col_header_txt:
         st.markdown("<h2 style='padding-top: 10px;'>💧 Gestão de Efluentes</h2>", unsafe_allow_html=True)
     with col_header_admin:
-        st.markdown(f"<div style='text-align: right; padding-top: 20px; color: {'#94a3b8' if modo_escuro else '#64748b'};'>👤 Admin</div>", unsafe_allow_html=True)
+        st.markdown("<div style='text-align: right; padding-top: 20px; color: #64748b;'>👤 Admin</div>", unsafe_allow_html=True)
         
     st.markdown("---")
     
@@ -893,7 +714,7 @@ elif "Vida Útil" in pagina_limpa or "Painel de Engenharia" in pagina_limpa:
         st.markdown("<h2 style='padding-top: 10px;'>⚙️ Painel de Engenharia — Vida Útil</h2>", unsafe_allow_html=True)
         st.caption("Acompanhamento volumétrico, taxas de preenchimento e horizonte de vida útil das células e jazida de solo.")
     with col_header_admin:
-        st.markdown(f"<div style='text-align: right; padding-top: 20px; color: {'#94a3b8' if modo_escuro else '#64748b'};'>👤 Admin</div>", unsafe_allow_html=True)
+        st.markdown("<div style='text-align: right; padding-top: 20px; color: #64748b;'>👤 Admin</div>", unsafe_allow_html=True)
         
     st.markdown("---")
     
@@ -966,7 +787,7 @@ elif "Vida Útil" in pagina_limpa or "Painel de Engenharia" in pagina_limpa:
                 values=[42, 28, 18, 12],
                 names=["Concreto & Alvenaria", "Solos & Cascalho", "Cerâmicas & Telhas", "Outros Inertes"],
                 hole=0.45,
-                color_discrete_sequence=['#187264', '#2dd4bf', '#38bdf8', '#94a3b8'] if modo_escuro else ['#187264', '#2a9d8f', '#0284c7', '#64748b'],
+                color_discrete_sequence=['#187264', '#2a9d8f', '#0284c7', '#64748b'],
                 template=plotly_template
             )
             fig_comp_ci.update_traces(textposition='inside', textinfo='percent+label')
@@ -1066,7 +887,7 @@ elif "Vida Útil" in pagina_limpa or "Painel de Engenharia" in pagina_limpa:
                 values=[188200, 231800],
                 names=["Ocupado (188.2k m³)", "Disponível (231.8k m³)"],
                 hole=0.45,
-                color_discrete_sequence=['#187264', '#2dd4bf'] if modo_escuro else ['#187264', '#2a9d8f'],
+                color_discrete_sequence=['#187264', '#2a9d8f'],
                 template=plotly_template
             )
             fig_bal_c2.update_traces(textposition='inside', textinfo='percent+label')
@@ -1150,7 +971,7 @@ elif "Vida Útil" in pagina_limpa or "Painel de Engenharia" in pagina_limpa:
                 values=[65, 15, 12, 8],
                 names=["Cobertura Diária (Célula 2A)", "Diques & Taludes", "Selagem Célula Inertes", "Obras & Manutenção"],
                 hole=0.45,
-                color_discrete_sequence=['#f59e0b', '#187264', '#2dd4bf', '#94a3b8'] if modo_escuro else ['#d97706', '#187264', '#2a9d8f', '#64748b'],
+                color_discrete_sequence=['#d97706', '#187264', '#2a9d8f', '#64748b'],
                 template=plotly_template
             )
             fig_ap_jz.update_traces(textposition='inside', textinfo='percent+label')
@@ -1196,7 +1017,7 @@ elif "Calendário Ambiental" in pagina_limpa:
         st.markdown("<h2 style='padding-top: 10px;'>⚙️ Painel de Engenharia — Calendário Ambiental</h2>", unsafe_allow_html=True)
         st.caption("Acompanhamento de obrigações perante os órgãos reguladores (SEMAD / IBAMA / Prefeitura) e auditorias periódicas.")
     with col_header_admin:
-        st.markdown(f"<div style='text-align: right; padding-top: 20px; color: {'#94a3b8' if modo_escuro else '#64748b'};'>👤 Admin</div>", unsafe_allow_html=True)
+        st.markdown("<div style='text-align: right; padding-top: 20px; color: #64748b;'>👤 Admin</div>", unsafe_allow_html=True)
         
     st.markdown("---")
     
@@ -1293,16 +1114,45 @@ elif pagina_limpa == "Painel Executivo":
     with col_header_txt:
         st.markdown("<h2 style='padding-top: 10px;'>💼 Painel Executivo</h2>", unsafe_allow_html=True)
     with col_header_admin:
-        st.markdown(f"<div style='text-align: right; padding-top: 20px; color: {'#94a3b8' if modo_escuro else '#64748b'};'>👤 Admin</div>", unsafe_allow_html=True)
+        st.markdown("<div style='text-align: right; padding-top: 20px; color: #64748b;'>👤 Admin</div>", unsafe_allow_html=True)
         
     st.markdown("---")
     st.markdown("Visão executiva estratégica com indicadores consolidados para tomada de decisão da diretoria e gerência geral.")
     
+    # Processa dados consolidados da balança para os KPIs executivos
+    meses_disp = []
+    ton_disp = []
+    if os.path.exists(FILE_PATH):
+        file_mtime_exec = os.path.getmtime(FILE_PATH)
+        sheet_names_exec = get_sheet_names(FILE_PATH, file_mtime_exec)
+        for sname in sheet_names_exec:
+            df_s = load_sheet_data(FILE_PATH, sname, file_mtime_exec)
+            soma_idx_s = df_s.index[df_s.iloc[:, 1] == 'SOMA (KG)'].tolist()
+            s_tot = 0.0
+            if soma_idx_s:
+                for r_i in range(soma_idx_s[0] + 1, len(df_s)):
+                    c_name = str(df_s.iloc[r_i, 0]).strip()
+                    if c_name in ['Entulho', 'Classe 2A', 'Classe 2A_Real', 'Lixo Domiciliar (Coleta)', 'Galhada', 'Seletiva']:
+                        num_val = pd.to_numeric(df_s.iloc[r_i, 1], errors='coerce')
+                        if pd.notna(num_val):
+                            s_tot += num_val
+            label_mes = sname.capitalize()
+            if sname == sheet_names_exec[-1]:
+                label_mes += " (atual)"
+            meses_disp.append(label_mes)
+            ton_disp.append(round(s_tot / 1000.0, 2))
+            
+    if not meses_disp:
+        meses_disp = ["Agosto", "Setembro", "Outubro", "Novembro (atual)"]
+        ton_disp = [7265.89, 9408.60, 9442.43, 1770.65]
+
+    total_disp_ano = sum(ton_disp) if ton_disp else 27887.57
+
     col_ex1, col_ex2, col_ex3, col_ex4 = st.columns(4)
     with col_ex1:
         st.metric("Custo Médio Operacional", "R$ 49,20 / t", "-3.5% vs orçado")
     with col_ex2:
-        st.metric("Disposição Total (2026)", "42.850 t", "Dentro do cronograma")
+        st.metric("Disposição Registrada", f"{total_disp_ano:,.2f} t".replace(',', 'X').replace('.', ',').replace('X', '.'), f"{len(meses_disp)} meses monitorados")
     with col_ex3:
         st.metric("Eficiência de Triagem", "98.8 %", "+0.4% no mês")
     with col_ex4:
@@ -1313,8 +1163,6 @@ elif pagina_limpa == "Painel Executivo":
     col_e1, col_e2 = st.columns(2)
     with col_e1:
         st.subheader("Desempenho Mensal de Resíduos Dispostos (t)")
-        meses_disp = ["Maio", "Junho", "Julho", "Agosto", "Setembro"]
-        ton_disp = [7120, 7450, 7890, 8120, 8350]
         fig_exec1 = px.bar(
             x=meses_disp, y=ton_disp,
             labels={"x": "Mês", "y": "Toneladas Dispostas"},
@@ -1322,7 +1170,7 @@ elif pagina_limpa == "Painel Executivo":
             color_discrete_sequence=['#187264']
         )
         fig_exec1.update_traces(
-            hovertemplate="<b>%{x}</b><br>Disposição: %{y:,.0f} t<extra></extra>"
+            hovertemplate="<b>%{x}</b><br>Disposição: %{y:,.2f} t<extra></extra>"
         )
         aplicar_estilo_grafico(fig_exec1)
         st.plotly_chart(fig_exec1, use_container_width=True)
